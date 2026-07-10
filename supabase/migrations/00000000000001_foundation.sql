@@ -1,4 +1,8 @@
-create extension if not exists postgis;
+-- PostGIS lives in the `extensions` schema (on the search path), NOT public.
+-- This keeps its spatial_ref_sys/geography_columns tables out of PostgREST's
+-- exposed `public` schema, so no client role can reach them and the blanket
+-- public-schema grants below never touch PostGIS-owned objects.
+create extension if not exists postgis with schema extensions;
 create extension if not exists pgcrypto;
 
 create table profiles (
@@ -217,8 +221,11 @@ create policy reports_insert_own on reports for insert with check (reporter = au
 -- no callable functions of its own, and `public` also hosts PostGIS's internal
 -- support functions, which cannot receive ordinary EXECUTE grants. RPCs added
 -- by later migrations should grant EXECUTE explicitly per function.)
+-- DML verbs only -- never ALL (which would add TRUNCATE/REFERENCES/TRIGGER).
+-- PostGIS lives in the `extensions` schema (see top of file), so its
+-- RLS-less spatial_ref_sys is not in `public` and these grants never reach it.
 grant usage on schema public to anon, authenticated, service_role;
-grant all on all tables in schema public to anon, authenticated, service_role;
-grant all on all sequences in schema public to anon, authenticated, service_role;
-alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
-alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
+grant select, insert, update, delete on all tables in schema public to anon, authenticated, service_role;
+grant usage, select on all sequences in schema public to anon, authenticated, service_role;
+alter default privileges in schema public grant select, insert, update, delete on tables to anon, authenticated, service_role;
+alter default privileges in schema public grant usage, select on sequences to anon, authenticated, service_role;
