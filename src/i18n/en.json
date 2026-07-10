@@ -1,0 +1,103 @@
+{
+  "glossary": {
+    "ordeal": "Ordeal",
+    "feud": "Feud",
+    "showdown": "Showdown",
+    "chronicled": "Chronicled",
+    "rumor": "Rumor",
+    "arch": "Arch-Nemesis",
+    "summon": "Summon"
+  },
+  "tagline": "Iron hardens Iron",
+  "onboarding": {
+    "welcomeTitle": "Iron makes steel stronger.",
+    "welcomeBody": "Complacency will be the death of you. Find a nemesis.",
+    "maskTitle": "Choose thy mask",
+    "nameTitle": "Name thyself",
+    "namePlaceholder": "Doomrider Kevin",
+    "catchphraseTitle": "Thy catchphrase",
+    "catchphrasePlaceholder": "Ahha, we meet again.",
+    "bioTitle": "Why would you make a worthy nemesis?",
+    "ordealsTitle": "Choose thy ordeals",
+    "forgeCta": "Forge your own ordeal",
+    "radiusTitle": "How far does thy enmity reach?",
+    "notificationsAsk": "Allow thy nemesis to disturb thy peace?"
+  },
+  "summon": {
+    "cta": "Summon a friend",
+    "shareText": "I challenge thee. Download Nemesis and answer for thyself.",
+    "pending": "The summons is sent. Awaiting thy foe.",
+    "revoke": "Withdraw summons",
+    "landingTitle": "{{name}} names thee nemesis.",
+    "landingCta": "Answer the challenge",
+    "dead": "This summons has faded into legend."
+  },
+  "deck": {
+    "tab": "Hunting grounds",
+    "locationAsk": "Reveal thy whereabouts to find nearby foes?",
+    "empty": "No worthy adversaries within reach. Widen thy radius — or summon a friend.",
+    "spare": "Spare",
+    "challenge": "Challenge",
+    "matchTitle": "AHHA, WE MEET AGAIN.",
+    "matchCta": "Begin the feud",
+    "distanceAway": "{{km}} km away"
+  },
+  "feud": {
+    "modeEndless": "Endless feud",
+    "modeShowdown": "Showdown — first to {{goal}}",
+    "awaiting": "Thy challenge awaits an answer.",
+    "logDeed": "Log thy deed",
+    "proofHint": "Without proof, this is but a rumor. Rumors count all the same.",
+    "entryRumor": "rumor",
+    "goneSoft": "Thy rival has gone soft.",
+    "forfeitCta": "Claim forfeit",
+    "victory": "VICTORY",
+    "victoryRumorRatio": "Built {{pct}}% on rumors.",
+    "defeat": "DEFEAT",
+    "rematchCta": "Demand a rematch",
+    "buried": "Buried feuds"
+  },
+  "forge": {
+    "title": "Taunt Forge",
+    "subtitle": "Compose thy insult",
+    "send": "Send message",
+    "spent": "Thy venom is spent. Return at dawn.",
+    "received": "A message from thy nemesis."
+  },
+  "arch": {
+    "confirmTitle": "There can be only one.",
+    "confirmBody": "Declare thy arch-nemesis. You may do this once. Both shall be unmasked.",
+    "pending": "Thy declaration awaits an answer.",
+    "received": "{{name}} names thee arch-nemesis. Accept the unmasking pact?",
+    "unmask": "The masks fall.",
+    "dissolveConfirm": "Dissolve the pact? The chronicle freezes. Nothing more is revealed."
+  },
+  "brutality": {
+    "title": "Brutality",
+    "1": "Soft",
+    "1_desc": "I want texts to be legible.",
+    "2": "Hard",
+    "2_desc": "The letters begin to sharpen.",
+    "3": "Hardcore",
+    "3_desc": "Legibility is for the weak.",
+    "4": "I don't care",
+    "4_desc": "You will suffer.",
+    "5": "I REALLY don't care",
+    "5_desc": "The most brutal choice of all."
+  },
+  "settings": {
+    "deleteAccount": "Erase my legend",
+    "deleteConfirm": "Thy chronicle, feuds, and name shall be wiped from all records. Forever.",
+    "report": "Report",
+    "block": "Banish",
+    "ordealRejected": "This ordeal displeases the elders.",
+    "coexist": "Coexist? NO!"
+  },
+  "push": {
+    "match": "A nemesis has answered thy challenge.",
+    "taunt": "{{name}} sends taunt.",
+    "score": "{{name}}'s tower grows.",
+    "declare": "Thou hast been named an arch-nemesis.",
+    "goalNear": "Thy nemesis nears the goal."
+  }
+}
