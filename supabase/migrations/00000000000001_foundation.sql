@@ -229,3 +229,11 @@ grant select, insert, update, delete on all tables in schema public to anon, aut
 grant usage, select on all sequences in schema public to anon, authenticated, service_role;
 alter default privileges in schema public grant select, insert, update, delete on tables to anon, authenticated, service_role;
 alter default privileges in schema public grant usage, select on sequences to anon, authenticated, service_role;
+
+-- Supabase's platform default ACL pre-grants ALL table privileges to these
+-- roles before this migration runs, so the DML grants above are additive and
+-- leave TRUNCATE/REFERENCES/TRIGGER behind. Strip those from the client-facing
+-- roles (not service_role, which is server-only and bypasses RLS anyway).
+-- Not HTTP-reachable today (PostgREST exposes no TRUNCATE verb) -- this matches
+-- least-privilege intent and closes a future RPC/injection escalation path.
+revoke truncate, references, trigger on all tables in schema public from anon, authenticated;
