@@ -115,3 +115,75 @@ export async function feudTotals(client: SupabaseClient, feudId: string): Promis
   }
   return totals;
 }
+
+export interface ProfilePersona {
+  id: string;
+  nemesis_name: string;
+  mask_avatar_id: string;
+  catchphrase: string | null;
+}
+
+export interface FeudWithMeta {
+  feud: FeudRow;
+  opponent: ProfilePersona;
+  ordeal: OrdealRow;
+  myTotal: number;
+  theirTotal: number;
+}
+
+export interface PendingInvite extends InviteRow {
+  ordeal: OrdealRow;
+  expires_at: string;
+}
+
+export async function listFeudsWithMeta(client: SupabaseClient, myId: string): Promise<FeudWithMeta[]> {
+  const feuds = await listFeuds(client, myId);
+  if (feuds.length === 0) return [];
+
+  const opponentIds = [...new Set(feuds.map((f) => (f.profile_a === myId ? f.profile_b : f.profile_a)))];
+  const ordealIds = [...new Set(feuds.map((f) => f.ordeal_id))];
+
+  const [{ data: profiles }, { data: ordeals }] = await Promise.all([
+    client.from('profiles').select('id, nemesis_name, mask_avatar_id, catchphrase').in('id', opponentIds),
+    client.from('ordeals').select('*').in('id', ordealIds),
+  ]);
+  const profileById = new Map((profiles ?? []).map((p) => [p.id, p as ProfilePersona]));
+  const ordealById = new Map((ordeals ?? []).map((o) => [o.id, o as OrdealRow]));
+
+  const result: FeudWithMeta[] = [];
+  for (const feud of feuds) {
+    const opponentId = feud.profile_a === myId ? feud.profile_b : feud.profile_a;
+    const opponent = profileById.get(opponentId);
+    const ordeal = ordealById.get(feud.ordeal_id);
+    if (opponent == null || ordeal == null) continue; // opponent deleted etc.
+    const totals = await feudTotals(client, feud.id);
+    result.push({
+      feud,
+      opponent,
+      ordeal,
+      myTotal: totals[myId] ?? 0,
+      theirTotal: totals[opponentId] ?? 0,
+    });
+  }
+  return result;
+}
+
+export async function pendingInvites(client: SupabaseClient): Promise<PendingInvite[]> {
+  const { data, error } = await client
+    .from('invites')
+    .select('*, ordeal:ordeals(*)')
+    .eq('status', 'pending')
+    .gt('expires_at', new Date().toISOString())
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as unknown as PendingInvite[];
+}
+
+export async function myOrdeals(client: SupabaseClient, myId: string): Promise<OrdealRow[]> {
+  const { data, error } = await client
+    .from('profile_ordeals')
+    .select('ordeal:ordeals(*)')
+    .eq('profile_id', myId);
+  if (error) throw error;
+  return (data ?? []).map((r: any) => r.ordeal as OrdealRow);
+}
