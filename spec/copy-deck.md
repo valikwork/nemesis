@@ -31,6 +31,25 @@
 | radius_title | How far does thy enmity reach? | Як далеко сягає твоя ворожість? |
 | notifications_ask | Allow thy nemesis to disturb thy peace? | Дозволити ворогові порушувати твій спокій? |
 
+### 2b. Plan-2 additions (auth + wizard chrome)
+
+| Key | EN | UA (draft) |
+| --- | --- | --- |
+| common_next | Onward | Далі |
+| common_confirm | So be it | Хай буде так |
+| common_cancel | Retreat | Відступити |
+| validation_too_short | Too short for legend. | Закоротко для легенди. |
+| validation_too_long | Even sagas have limits. | Навіть саги мають межі. |
+| auth_enter | Enter | Увійти |
+| auth_rise | Rise | Повстати |
+| auth_to_sign_up | No account? Rise anew | Немає облікового запису? Повстань |
+| auth_to_sign_in | Return to the gate | Повернутися до брами |
+| onboarding_skill_hint_title | Name thy prowess | Назви свою майстерність |
+| onboarding_seal_title | Seal thy persona | Скріпи свою подобу |
+| onboarding_seal_cta | Seal it in blood | Скріпити кров'ю |
+
+(These UA strings are drafts like all others — owner reviews. Note `Скріпити кров'ю` contains an apostrophe — JSON-safe, SQL not involved.)
+
 ## 3. Deck & matching
 **Invites (primary flow):**
 

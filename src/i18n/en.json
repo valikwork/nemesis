@@ -21,7 +21,25 @@
     "ordealsTitle": "Choose thy ordeals",
     "forgeCta": "Forge your own ordeal",
     "radiusTitle": "How far does thy enmity reach?",
-    "notificationsAsk": "Allow thy nemesis to disturb thy peace?"
+    "notificationsAsk": "Allow thy nemesis to disturb thy peace?",
+    "skillHintTitle": "Name thy prowess",
+    "sealTitle": "Seal thy persona",
+    "sealCta": "Seal it in blood"
+  },
+  "common": {
+    "next": "Onward",
+    "confirm": "So be it",
+    "cancel": "Retreat"
+  },
+  "validation": {
+    "tooShort": "Too short for legend.",
+    "tooLong": "Even sagas have limits."
+  },
+  "auth": {
+    "enter": "Enter",
+    "rise": "Rise",
+    "toSignUp": "No account? Rise anew",
+    "toSignIn": "Return to the gate"
   },
   "summon": {
     "cta": "Summon a friend",

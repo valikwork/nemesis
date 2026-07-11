@@ -38,12 +38,12 @@ export default function SignIn() {
           secureTextEntry autoComplete={mode === 'signIn' ? 'current-password' : 'new-password'} />
         {error != null && <Text style={styles.error}>{error}</Text>}
         <GrimButton
-          label={mode === 'signIn' ? 'Enter' : 'Rise'}
+          label={mode === 'signIn' ? t('auth.enter') : t('auth.rise')}
           onPress={submit}
           disabled={busy || email.trim() === '' || password.length < 8}
         />
         <GrimButton
-          label={mode === 'signIn' ? 'No account? Rise anew' : 'Return to the gate'}
+          label={mode === 'signIn' ? t('auth.toSignUp') : t('auth.toSignIn')}
           variant="ghost"
           onPress={() => setMode(mode === 'signIn' ? 'signUp' : 'signIn')}
         />

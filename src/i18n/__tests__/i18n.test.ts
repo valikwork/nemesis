@@ -33,4 +33,16 @@ describe('i18n catalogs', () => {
       }
     }
   });
+  it('plan-2 keys present', () => {
+    for (const key of [
+      'common.next', 'common.confirm', 'common.cancel',
+      'validation.tooShort', 'validation.tooLong',
+      'auth.enter', 'auth.rise', 'auth.toSignUp', 'auth.toSignIn',
+      'onboarding.skillHintTitle', 'onboarding.sealTitle', 'onboarding.sealCta',
+    ]) {
+      const resolveIn = (cat: object) => key.split('.').reduce((o: any, k) => o?.[k], cat);
+      expect(typeof resolveIn(en)).toBe('string');
+      expect(typeof resolveIn(uk)).toBe('string');
+    }
+  });
 });
