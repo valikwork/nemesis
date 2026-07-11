@@ -202,3 +202,19 @@ All ordeals are cumulative — more is always better (direction concept removed)
 | Days without alcohol | Дні без алкоголю | days / дні |
 
 Goofier entries are intentionally present at launch — they teach users that custom ordeals may be absurd.
+
+### 2c. Onboarding revision (2026-07-11, owner feedback from e2e walk)
+
+Flow simplified: auth → sigil → name → ordeals → seal. Catchphrase and bio REMOVED from onboarding — catchphrase defaults to the value of `catchphrase_placeholder` ("Ahha, we meet again." / «Ось ми і зустрілися знову.»), bio defaults to empty; both editable later in Settings (Plan 5). `mask_title` superseded by `sigil_title`. Name screen vertically centered.
+
+| Key | EN | UA (draft) |
+| --- | --- | --- |
+| sigil_title | Choose thy sigil | Обери свій знак |
+| ordeals_subtitle | The activities you'll challenge rivals in. | Активності, в яких ти змагатимешся з суперниками. |
+| ordeals_limit | Five ordeals suffice for any legend. | П'яти випробувань досить для будь-якої легенди. |
+| forge_name_label | Activity | Активність |
+| forge_unit_label | Unit of measurement | Одиниця виміру |
+
+Register note: `ordeals_subtitle` is deliberately plain (owner: users must instantly understand what they're picking — no archaic riddles on load-bearing explanations).
+
+Max ordeals per user at onboarding: **5** (soft product cap, UI-enforced; DB unconstrained).
