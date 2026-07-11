@@ -8,12 +8,16 @@ const anon = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
 const service = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
 const maybe = anon && service ? describe : describe.skip;
 
+// Deliberately does NOT create a profiles row: in the real flow users forge
+// ordeals mid-onboarding, before their persona exists. The original version
+// of this helper inserted a profile first, which masked a broken FK
+// (ordeals.created_by -> profiles) that only surfaced in the live e2e walk.
 async function freshUser(prefix: string) {
   const admin = createClient(url, service);
   const email = `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1e6)}@test.local`;
   const { data, error } = await admin.auth.admin.createUser({ email, password: 'pass1234!', email_confirm: true });
   expect(error).toBeNull();
-  await admin.from('profiles').insert({ id: data.user!.id, nemesis_name: 'Forge Tester' });
+  expect(data.user).not.toBeNull();
   const client = createClient(url, anon);
   const { error: se } = await client.auth.signInWithPassword({ email, password: 'pass1234!' });
   expect(se).toBeNull();
