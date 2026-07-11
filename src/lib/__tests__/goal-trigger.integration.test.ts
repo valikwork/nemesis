@@ -75,3 +75,32 @@ maybe('showdown goal trigger', () => {
     expect(error).not.toBeNull(); // scores_insert_own requires feud status='active'
   });
 });
+
+maybe('goal trigger concurrency (deadlock regression)', () => {
+  it('both members logging simultaneously both succeed, repeatedly', async () => {
+    const a = await userWithProfile('conc-a', 'Conc Anna');
+    const b = await userWithProfile('conc-b', 'Conc Bo');
+    const feudId = await makeFeud(a, b, 'endless', null);
+    for (let round = 0; round < 5; round++) {
+      const [ra, rb] = await Promise.all([
+        a.client.from('score_entries').insert({ feud_id: feudId, author: a.id, value: 1 }),
+        b.client.from('score_entries').insert({ feud_id: feudId, author: b.id, value: 1 }),
+      ]);
+      expect(ra.error).toBeNull();
+      expect(rb.error).toBeNull();
+    }
+  });
+
+  it('simultaneous goal crossers produce exactly one winner', async () => {
+    const a = await userWithProfile('race-a', 'Race Anna');
+    const b = await userWithProfile('race-b', 'Race Bo');
+    const feudId = await makeFeud(a, b, 'showdown', 5);
+    await Promise.all([
+      a.client.from('score_entries').insert({ feud_id: feudId, author: a.id, value: 5 }),
+      b.client.from('score_entries').insert({ feud_id: feudId, author: b.id, value: 5 }),
+    ]);
+    const { data } = await admin().from('feuds').select('status, winner').eq('id', feudId).single();
+    expect(data!.status).toBe('ended');
+    expect([a.id, b.id]).toContain(data!.winner);
+  });
+});
