@@ -56,14 +56,14 @@
         "preset": "jest-expo",
         "testPathIgnorePatterns": [
           "/node_modules/",
-          "<rootDir>/src/lib/__tests__/rls.integration.test.ts"
+          "\\.integration\\.test\\.ts$"
         ]
       },
       {
         "displayName": "integration",
         "testEnvironment": "node",
         "testMatch": [
-          "<rootDir>/src/lib/__tests__/rls.integration.test.ts"
+          "**/__tests__/**/*.integration.test.ts"
         ],
         "transform": {
           "^.+\\.tsx?$": [
