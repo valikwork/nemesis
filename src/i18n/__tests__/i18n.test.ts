@@ -39,6 +39,8 @@ describe('i18n catalogs', () => {
       'validation.tooShort', 'validation.tooLong',
       'auth.enter', 'auth.rise', 'auth.toSignUp', 'auth.toSignIn',
       'onboarding.skillHintTitle', 'onboarding.sealTitle', 'onboarding.sealCta',
+      'onboarding.sigilTitle', 'onboarding.ordealsSubtitle', 'onboarding.ordealsLimit',
+      'onboarding.forgeNameLabel', 'onboarding.forgeUnitLabel',
     ]) {
       const resolveIn = (cat: object) => key.split('.').reduce((o: any, k) => o?.[k], cat);
       expect(typeof resolveIn(en)).toBe('string');

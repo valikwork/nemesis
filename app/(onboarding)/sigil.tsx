@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { MASKS } from '../../src/onboarding/masks';
-import { MaskTile } from '../../src/components/MaskTile';
+import { SIGILS } from '../../src/onboarding/sigils';
+import { SigilTile } from '../../src/components/SigilTile';
 import { GrimButton } from '../../src/components/GrimButton';
 import { loadDraft, saveDraft } from '../../src/onboarding/draft';
 import { colors, semantic, spacing } from '../../src/theme/tokens';
 
-export default function MaskStep() {
+export default function SigilStep() {
   const { t } = useTranslation();
   const router = useRouter();
   const [selected, setSelected] = useState<string | null>(null);
@@ -25,15 +25,15 @@ export default function MaskStep() {
 
   return (
     <View style={styles.root}>
-      <Text style={styles.title}>{t('onboarding.maskTitle')}</Text>
+      <Text style={styles.title}>{t('onboarding.sigilTitle')}</Text>
       <FlatList
-        data={MASKS}
+        data={SIGILS}
         numColumns={4}
-        keyExtractor={(m) => m.id}
+        keyExtractor={(s) => s.id}
         columnWrapperStyle={styles.row}
         contentContainerStyle={styles.grid}
         renderItem={({ item }) => (
-          <MaskTile glyph={item.glyph} selected={selected === item.id} onPress={() => setSelected(item.id)} />
+          <SigilTile glyph={item.glyph} selected={selected === item.id} onPress={() => setSelected(item.id)} />
         )}
       />
       <GrimButton label={t('common.next')} onPress={next} disabled={selected == null} />

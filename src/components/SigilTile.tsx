@@ -7,7 +7,7 @@ interface Props {
   onPress: () => void;
 }
 
-export function MaskTile({ glyph, selected, onPress }: Props) {
+export function SigilTile({ glyph, selected, onPress }: Props) {
   return (
     <Pressable
       accessibilityRole="button"

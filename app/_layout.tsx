@@ -16,7 +16,7 @@ function Guard() {
     const inAuth = segments[0] === '(auth)';
     const inOnboarding = segments[0] === '(onboarding)';
     if (target === '/(auth)/sign-in' && !inAuth) router.replace('/(auth)/sign-in');
-    else if (target === '/(onboarding)/mask' && !inOnboarding) router.replace('/(onboarding)/mask');
+    else if (target === '/(onboarding)/sigil' && !inOnboarding) router.replace('/(onboarding)/sigil');
     else if (target === '/' && (inAuth || inOnboarding)) router.replace('/');
   }, [loading, session, hasProfile, segments]);
 

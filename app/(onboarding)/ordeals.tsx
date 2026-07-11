@@ -34,6 +34,7 @@ export default function OrdealsStep() {
       delete next[id];
       setSelected(next);
     } else {
+      if (Object.keys(selected).length >= 5) return;
       setHintFor(id);
       setHintText('');
     }
@@ -74,6 +75,10 @@ export default function OrdealsStep() {
   return (
     <View style={styles.root}>
       <Text style={styles.title}>{t('onboarding.ordealsTitle')}</Text>
+      <Text style={styles.subtitle}>{t('onboarding.ordealsSubtitle')}</Text>
+      {Object.keys(selected).length >= 5 && (
+        <Text style={styles.limitNote}>{t('onboarding.ordealsLimit')}</Text>
+      )}
       <FlatList
         data={rows}
         keyExtractor={(r) => r.id}
@@ -97,8 +102,10 @@ export default function OrdealsStep() {
         <View style={styles.modalScrim}>
           <View style={styles.modal}>
             <Text style={styles.title}>{t('onboarding.forgeCta')}</Text>
+            <Text style={styles.fieldLabel}>{t('onboarding.forgeNameLabel')}</Text>
             <GrimInput value={forgeName} onChangeText={setForgeName} placeholder="Yodeling"
               error={forgeName !== '' && validateOrdealName(forgeName) ? t(`validation.${validateOrdealName(forgeName)}`) : null} />
+            <Text style={styles.fieldLabel}>{t('onboarding.forgeUnitLabel')}</Text>
             <GrimInput value={forgeUnit} onChangeText={setForgeUnit} placeholder="yodels"
               error={forgeUnit !== '' && validateOrdealUnit(forgeUnit) ? t(`validation.${validateOrdealUnit(forgeUnit)}`) : null} />
             {forgeError != null && <Text style={styles.error}>{forgeError}</Text>}
@@ -127,6 +134,9 @@ export default function OrdealsStep() {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: semantic.bg, padding: spacing[4], paddingTop: spacing[5] * 2, gap: spacing[2] },
   title: { color: colors.bone, fontSize: 22, textAlign: 'center', letterSpacing: 1 },
+  subtitle: { color: colors.ash, fontSize: 13, textAlign: 'center' },
+  limitNote: { color: colors.smoke, fontSize: 12, textAlign: 'center' },
+  fieldLabel: { color: colors.ash, fontSize: 12, letterSpacing: 1 },
   list: { gap: spacing[1] },
   row: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',

@@ -5,7 +5,7 @@ describe('routeFor', () => {
     expect(routeFor({ session: false, hasProfile: false })).toBe('/(auth)/sign-in');
   });
   it('authenticated without profile → onboarding', () => {
-    expect(routeFor({ session: true, hasProfile: false })).toBe('/(onboarding)/mask');
+    expect(routeFor({ session: true, hasProfile: false })).toBe('/(onboarding)/sigil');
   });
   it('authenticated with profile → home', () => {
     expect(routeFor({ session: true, hasProfile: true })).toBe('/');

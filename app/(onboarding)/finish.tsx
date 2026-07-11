@@ -19,6 +19,9 @@ export default function FinishStep() {
     setError(null);
     try {
       const draft = await loadDraft();
+      if (draft.catchphrase.trim() === '') {
+        draft.catchphrase = t('onboarding.catchphrasePlaceholder');
+      }
       await completeOnboarding(supabase, draft);
       await clearDraft();
       await refreshProfile(); // root guard sees hasProfile → routes home
