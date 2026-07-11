@@ -42,6 +42,12 @@ export default function OrdealsStep() {
 
   function confirmHint() {
     if (hintFor == null || validateSkillHint(hintText) != null) return;
+    // same cap as toggle(): confirming a hint for a not-yet-selected ordeal
+    // (including one just forged) must not push the selection past 5
+    if (selected[hintFor] === undefined && Object.keys(selected).length >= 5) {
+      setHintFor(null);
+      return;
+    }
     setSelected({ ...selected, [hintFor]: hintText.trim() });
     setHintFor(null);
   }
@@ -57,10 +63,13 @@ export default function OrdealsStep() {
     }
     const row = data as OrdealRow;
     setRows([row, ...rows]);
-    setSelected({ ...selected, [row.id]: '' });
     setForgeOpen(false);
     setForgeName('');
     setForgeUnit('');
+    // freshly forged ordeal goes straight to the skill-hint sheet, so the
+    // creator states their level immediately; confirming there selects it
+    setHintFor(row.id);
+    setHintText('');
   }
 
   async function next() {
@@ -120,7 +129,7 @@ export default function OrdealsStep() {
         <View style={styles.modalScrim}>
           <View style={styles.modal}>
             <Text style={styles.title}>{t('onboarding.skillHintTitle')}</Text>
-            <GrimInput value={hintText} onChangeText={setHintText} placeholder="1450 elo"
+            <GrimInput value={hintText} onChangeText={setHintText} placeholder="1450"
               error={validateSkillHint(hintText) ? t(`validation.${validateSkillHint(hintText)}`) : null} />
             <GrimButton label={t('common.confirm')} onPress={confirmHint} disabled={validateSkillHint(hintText) != null} />
             <GrimButton label={t('common.cancel')} variant="ghost" onPress={() => setHintFor(null)} />
