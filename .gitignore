@@ -35,3 +35,6 @@ yarn-error.*
 # macOS
 .DS_Store
 *.pem
+
+# Claude Code local overrides
+.claude/settings.local.json
