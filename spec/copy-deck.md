@@ -76,6 +76,36 @@
 | match_cta         | Begin the feud                                                             | Розпочати ворожнечу                                                     |
 | distance_away     | {km} km away                                                               | за {km} км                                                              |
 
+### 3c. Plan-3b additions (home, summon, landing, feud screen)
+
+| Key | EN | UA (draft) |
+| --- | --- | --- |
+| home_title | Thy feuds | Твої ворожнечі |
+| home_empty | No feuds yet. Summon a friend and begin. | Ворожнеч поки немає. Поклич друга і почни. |
+| home_buried | Buried | Поховані |
+| home_summon_cta | Summon a friend | Поклич друга |
+| home_pending_title | Pending summons | Надіслані поклики |
+| summon_sheet_title | Throw the glove | Кинь рукавицю |
+| summon_mode_label | Mode | Режим |
+| summon_goal_label | First to | Хто перший до |
+| summon_create | Forge the summons | Викуй поклик |
+| landing_accept | Answer the challenge | Прийняти виклик |
+| landing_decline | Not today | Не сьогодні |
+| landing_expired | This summons has faded into legend. | Цей поклик розчинився в історії. |
+| match_title | AHHA, WE MEET AGAIN. | АГА, ОСЬ МИ І ЗУСТРІЛИСЯ. |
+| match_begin | To the towers | До веж |
+| feud_log_title | Log thy deed | Закарбуй свій чин |
+| feud_value_label | How much | Скільки |
+| feud_note_label | Note (optional) | Нотатка (необов'язково) |
+| feud_attach_proof | Attach proof | Додати доказ |
+| feud_proof_attached | Proof attached — this will be chronicled | Доказ додано — буде закарбовано |
+| feud_chronicle | Chronicle | Літопис |
+| feud_you | You | Ти |
+| feud_won | VICTORY | ПЕРЕМОГА |
+| feud_lost | DEFEAT | ПОРАЗКА |
+
+(Some duplicate concepts exist in §3/§4 tables with slightly different keys — these §3c keys are the ones the app uses; §3/§4 remain the copy reference. UA drafts — owner reviews.)
+
 ## 4. Feud
 | Key | EN | UA (draft) |
 | --- | --- | --- |

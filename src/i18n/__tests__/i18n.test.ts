@@ -47,4 +47,18 @@ describe('i18n catalogs', () => {
       expect(typeof resolveIn(uk)).toBe('string');
     }
   });
+  it('plan-3b keys present', () => {
+    for (const key of [
+      'home.title', 'home.empty', 'home.buried', 'home.summonCta', 'home.pendingTitle',
+      'summon.sheetTitle', 'summon.modeLabel', 'summon.goalLabel', 'summon.create',
+      'landing.accept', 'landing.decline', 'landing.expired',
+      'match.title', 'match.begin',
+      'feud.logTitle', 'feud.valueLabel', 'feud.noteLabel', 'feud.attachProof', 'feud.proofAttached',
+      'feud.chronicle', 'feud.you', 'feud.won', 'feud.lost',
+    ]) {
+      const resolveIn = (cat: object) => key.split('.').reduce((o: any, k) => o?.[k], cat);
+      expect(typeof resolveIn(en)).toBe('string');
+      expect(typeof resolveIn(uk)).toBe('string');
+    }
+  });
 });

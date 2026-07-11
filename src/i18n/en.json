@@ -53,7 +53,27 @@
     "revoke": "Withdraw summons",
     "landingTitle": "{{name}} names thee nemesis.",
     "landingCta": "Answer the challenge",
-    "dead": "This summons has faded into legend."
+    "dead": "This summons has faded into legend.",
+    "sheetTitle": "Throw the glove",
+    "modeLabel": "Mode",
+    "goalLabel": "First to",
+    "create": "Forge the summons"
+  },
+  "home": {
+    "title": "Thy feuds",
+    "empty": "No feuds yet. Summon a friend and begin.",
+    "buried": "Buried",
+    "summonCta": "Summon a friend",
+    "pendingTitle": "Pending summons"
+  },
+  "landing": {
+    "accept": "Answer the challenge",
+    "decline": "Not today",
+    "expired": "This summons has faded into legend."
+  },
+  "match": {
+    "title": "AHHA, WE MEET AGAIN.",
+    "begin": "To the towers"
   },
   "deck": {
     "tab": "Hunting grounds",
@@ -78,7 +98,16 @@
     "victoryRumorRatio": "Built {{pct}}% on rumors.",
     "defeat": "DEFEAT",
     "rematchCta": "Demand a rematch",
-    "buried": "Buried feuds"
+    "buried": "Buried feuds",
+    "logTitle": "Log thy deed",
+    "valueLabel": "How much",
+    "noteLabel": "Note (optional)",
+    "attachProof": "Attach proof",
+    "proofAttached": "Proof attached — this will be chronicled",
+    "chronicle": "Chronicle",
+    "you": "You",
+    "won": "VICTORY",
+    "lost": "DEFEAT"
   },
   "forge": {
     "title": "Taunt Forge",
