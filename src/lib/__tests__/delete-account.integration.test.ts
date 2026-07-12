@@ -32,6 +32,45 @@ maybe('delete-account edge function', () => {
     expect(authUser.user).toBeNull();
   });
 
+  it('erases a user who accepted an invite and was reported (walk regression)', async () => {
+    const a = createClient(url, service);
+    const stamp = Date.now();
+    const { data: inviter } = await a.auth.admin.createUser({
+      email: `erase-inv-${stamp}@test.local`, password: 'pass1234!', email_confirm: true,
+    });
+    await a.from('profiles').insert({ id: inviter.user!.id, nemesis_name: 'Erase Inviter' });
+    const { data: victim } = await a.auth.admin.createUser({
+      email: `erase-vic-${stamp}@test.local`, password: 'pass1234!', email_confirm: true,
+    });
+    await a.from('profiles').insert({ id: victim.user!.id, nemesis_name: 'Erase Victim' });
+    const { data: ordeal } = await a.from('ordeals').select('id').limit(1).single();
+    const { data: invite, error: ie } = await a.from('invites').insert({
+      inviter: inviter.user!.id, ordeal_id: ordeal!.id, mode: 'endless',
+      status: 'accepted', accepted_by: victim.user!.id,
+    }).select('id').single();
+    expect(ie).toBeNull();
+    const { error: re } = await a.from('reports').insert({
+      reporter: inviter.user!.id, target: victim.user!.id, reason: 'walk regression fixture',
+    });
+    expect(re).toBeNull();
+
+    const client = createClient(url, anon);
+    await client.auth.signInWithPassword({ email: `erase-vic-${stamp}@test.local`, password: 'pass1234!' });
+    const { data: s } = await client.auth.getSession();
+    const resp = await fetch(`${fnUrl}/delete-account`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${s.session!.access_token}` },
+    });
+    expect(resp.status).toBe(200);
+
+    const { data: inv } = await a.from('invites').select('accepted_by').eq('id', invite!.id).single();
+    expect(inv!.accepted_by).toBeNull();
+    const { data: reports } = await a.from('reports').select('target').eq('reporter', inviter.user!.id);
+    expect(reports).toHaveLength(1);
+    expect(reports![0].target).toBeNull();
+    await a.auth.admin.deleteUser(inviter.user!.id);
+  });
+
   it('rejects anon calls', async () => {
     const resp = await fetch(`${fnUrl}/delete-account`, {
       method: 'POST',
