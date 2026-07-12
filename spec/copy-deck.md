@@ -37,7 +37,7 @@
 | --- | --- | --- |
 | common_next | Onward | Далі |
 | common_confirm | So be it | Хай буде так |
-| common_cancel | Retreat | Відступити |
+| common_cancel | Back | Назад |
 | validation_too_short | Too short for legend. | Закоротко для легенди. |
 | validation_too_long | Even sagas have limits. | Навіть саги мають межі. |
 | auth_enter | Enter | Увійти |

@@ -34,7 +34,7 @@
   "common": {
     "next": "Onward",
     "confirm": "So be it",
-    "cancel": "Retreat"
+    "cancel": "Back"
   },
   "validation": {
     "tooShort": "Too short for legend.",

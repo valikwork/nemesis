@@ -34,7 +34,7 @@
   "common": {
     "next": "Далі",
     "confirm": "Хай буде так",
-    "cancel": "Відступити"
+    "cancel": "Назад"
   },
   "validation": {
     "tooShort": "Закоротко для легенди.",
