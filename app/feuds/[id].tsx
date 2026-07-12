@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.crypt, borderWidth: 1, borderColor: colors.venomDim,
     borderRadius: radii.chip, padding: spacing[2],
   },
-  entryRumor: { opacity: 0.7, borderStyle: 'dashed' },
+  entryRumor: { opacity: 0.7, borderColor: colors.venomDeep },
   entryWho: { fontSize: 11, letterSpacing: 1 },
   entryMine: { color: colors.blood },
   entryTheirs: { color: colors.venomDeep },

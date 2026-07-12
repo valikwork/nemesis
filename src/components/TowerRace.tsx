@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
   theirName: { color: colors.venomDeep },
   goalLine: {
     position: 'absolute', left: spacing[3], right: spacing[3],
-    borderTopWidth: 1, borderTopColor: colors.blood, borderStyle: 'dashed',
+    borderTopWidth: 1, borderTopColor: colors.blood,
     alignItems: 'flex-end', zIndex: 1,
   },
   goalText: { color: colors.blood, fontSize: 10, letterSpacing: 1, marginTop: 2 },
