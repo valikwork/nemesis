@@ -19,6 +19,7 @@ export default function OrdealsStep() {
   const [forgeOpen, setForgeOpen] = useState(false);
   const [forgeName, setForgeName] = useState('');
   const [forgeUnit, setForgeUnit] = useState('');
+  const [forgeAgg, setForgeAgg] = useState<'sum' | 'latest'>('sum');
   const [forgeError, setForgeError] = useState<string | null>(null);
   const [hintFor, setHintFor] = useState<string | null>(null);
   const [hintText, setHintText] = useState('');
@@ -56,6 +57,7 @@ export default function OrdealsStep() {
     setForgeError(null);
     const { data, error } = await supabase.rpc('forge_ordeal', {
       p_name: forgeName.trim(), p_unit: forgeUnit.trim(), p_language: lang === 'uk' ? 'uk' : 'en',
+      p_aggregation: forgeAgg,
     });
     if (error) {
       setForgeError(error.message.includes('ordeal_rejected') ? t('settings.ordealRejected') : error.message);
@@ -66,6 +68,7 @@ export default function OrdealsStep() {
     setForgeOpen(false);
     setForgeName('');
     setForgeUnit('');
+    setForgeAgg('sum');
     // freshly forged ordeal goes straight to the skill-hint sheet, so the
     // creator states their level immediately; confirming there selects it
     setHintFor(row.id);
@@ -117,6 +120,15 @@ export default function OrdealsStep() {
             <Text style={styles.fieldLabel}>{t('onboarding.forgeUnitLabel')}</Text>
             <GrimInput value={forgeUnit} onChangeText={setForgeUnit} placeholder="yodels"
               error={forgeUnit !== '' && validateOrdealUnit(forgeUnit) ? t(`validation.${validateOrdealUnit(forgeUnit)}`) : null} />
+            <Text style={styles.fieldLabel}>{t('onboarding.forgeAggLabel')}</Text>
+            {(['sum', 'latest'] as const).map((agg) => (
+              <Pressable key={agg} onPress={() => setForgeAgg(agg)}
+                style={[styles.aggRow, forgeAgg === agg && styles.aggRowOn]}>
+                <Text style={[styles.aggLabel, forgeAgg === agg && styles.aggLabelOn]}>
+                  {t(agg === 'sum' ? 'onboarding.aggSum' : 'onboarding.aggLatest')}
+                </Text>
+              </Pressable>
+            ))}
             {forgeError != null && <Text style={styles.error}>{forgeError}</Text>}
             <GrimButton label={t('common.confirm')} onPress={forge}
               disabled={validateOrdealName(forgeName) != null || validateOrdealUnit(forgeUnit) != null} />
@@ -166,6 +178,13 @@ const styles = StyleSheet.create({
   rowLabelOn: { color: colors.bone },
   rowUnit: { color: colors.smoke, fontSize: 12 },
   error: { color: colors.blood, fontSize: 13 },
+  aggRow: {
+    backgroundColor: colors.crypt, borderWidth: 1, borderColor: colors.venomDim,
+    borderRadius: radii.button, paddingVertical: spacing[2], paddingHorizontal: spacing[3],
+  },
+  aggRowOn: { borderColor: colors.blood, backgroundColor: colors.bloodMist },
+  aggLabel: { color: colors.ash, fontSize: 14 },
+  aggLabelOn: { color: colors.bone },
   modalScrim: { flex: 1, backgroundColor: 'rgba(6,5,7,0.85)', justifyContent: 'center', padding: spacing[4] },
   modal: { backgroundColor: colors.cryptRaised, borderRadius: radii.card, borderWidth: 1, borderColor: colors.venomDim, padding: spacing[4], gap: spacing[2] },
 });

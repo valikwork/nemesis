@@ -24,21 +24,31 @@ interface Args {
   goal: number | null;
   myId: string;
   them: string;
-  entries: TowerEntry[];
+  entries: TowerEntry[]; // chronological (oldest first)
+  aggregation?: 'sum' | 'latest';
 }
 
-export function towerGeometry({ mode, goal, myId, them, entries }: Args): TowerGeometry {
+export function towerGeometry({ mode, goal, myId, them, entries, aggregation = 'sum' }: Args): TowerGeometry {
   const mine = entries.filter((e) => e.author === myId);
   const theirs = entries.filter((e) => e.author === them);
   const sum = (xs: TowerEntry[]) => xs.reduce((acc, e) => acc + Number(e.value), 0);
-  const myTotal = sum(mine);
-  const theirTotal = sum(theirs);
+  // 'latest' ordeals track a level, not a tally: the newest entry IS the tower
+  const total = (xs: TowerEntry[]) =>
+    aggregation === 'latest' ? Number(xs[xs.length - 1]?.value ?? 0) : sum(xs);
+  const myTotal = total(mine);
+  const theirTotal = total(theirs);
 
   const reference = mode === 'showdown' && goal != null ? goal : Math.max(myTotal, theirTotal);
   const norm = (v: number) => (reference <= 0 ? 0 : Math.min(1, v / reference));
 
-  const segments = (xs: TowerEntry[], total: number): TowerSegment[] =>
-    total <= 0 ? [] : xs.map((e) => ({ fraction: Number(e.value) / total, chronicled: e.chronicled }));
+  const segments = (xs: TowerEntry[], t: number): TowerSegment[] => {
+    if (t <= 0) return [];
+    if (aggregation === 'latest') {
+      const last = xs[xs.length - 1];
+      return last == null ? [] : [{ fraction: 1, chronicled: last.chronicled }];
+    }
+    return xs.map((e) => ({ fraction: Number(e.value) / t, chronicled: e.chronicled }));
+  };
 
   return {
     myTotal,

@@ -108,13 +108,29 @@ export async function listScores(client: SupabaseClient, feudId: string): Promis
   return (data ?? []) as ScoreEntry[];
 }
 
-export async function feudTotals(client: SupabaseClient, feudId: string): Promise<Record<string, number>> {
-  const entries = await listScores(client, feudId);
+export interface FeudActivity {
+  totals: Record<string, number>;
+  lastEntryAt: Record<string, string>; // author → newest entry timestamp
+}
+
+export async function feudActivity(
+  client: SupabaseClient,
+  feudId: string,
+  aggregation: 'sum' | 'latest' = 'sum',
+): Promise<FeudActivity> {
+  const entries = await listScores(client, feudId); // chronological
   const totals: Record<string, number> = {};
+  const lastEntryAt: Record<string, string> = {};
   for (const e of entries) {
-    totals[e.author] = (totals[e.author] ?? 0) + Number(e.value);
+    // 'latest' ordeals track a level: the newest entry replaces the total
+    totals[e.author] = aggregation === 'latest' ? Number(e.value) : (totals[e.author] ?? 0) + Number(e.value);
+    lastEntryAt[e.author] = e.created_at;
   }
-  return totals;
+  return { totals, lastEntryAt };
+}
+
+export async function feudTotals(client: SupabaseClient, feudId: string): Promise<Record<string, number>> {
+  return (await feudActivity(client, feudId)).totals;
 }
 
 export interface ProfilePersona {
@@ -130,6 +146,19 @@ export interface FeudWithMeta {
   ordeal: OrdealRow;
   myTotal: number;
   theirTotal: number;
+  goneSoft: boolean; // opponent silent 14+ days on an active feud → forfeitable
+}
+
+export const GONE_SOFT_DAYS = 14;
+
+export function opponentGoneSoft(
+  feud: Pick<FeudRow, 'status' | 'created_at'>,
+  opponentLastEntryAt: string | undefined,
+  now: Date = new Date(),
+): boolean {
+  if (feud.status !== 'active') return false;
+  const last = new Date(opponentLastEntryAt ?? feud.created_at).getTime();
+  return now.getTime() - last > GONE_SOFT_DAYS * 864e5;
 }
 
 export interface PendingInvite extends InviteRow {
@@ -157,13 +186,14 @@ export async function listFeudsWithMeta(client: SupabaseClient, myId: string): P
     const opponent = profileById.get(opponentId);
     const ordeal = ordealById.get(feud.ordeal_id);
     if (opponent == null || ordeal == null) continue; // opponent deleted etc.
-    const totals = await feudTotals(client, feud.id);
+    const { totals, lastEntryAt } = await feudActivity(client, feud.id, ordeal.aggregation ?? 'sum');
     result.push({
       feud,
       opponent,
       ordeal,
       myTotal: totals[myId] ?? 0,
       theirTotal: totals[opponentId] ?? 0,
+      goneSoft: opponentGoneSoft(feud, lastEntryAt[opponentId]),
     });
   }
   return result;
@@ -187,6 +217,12 @@ export async function myOrdeals(client: SupabaseClient, myId: string): Promise<O
     .eq('profile_id', myId);
   if (error) throw error;
   return (data ?? []).map((r: any) => r.ordeal as OrdealRow);
+}
+
+/** Claim an active feud whose opponent has gone soft (silent 14+ days). */
+export async function forfeitFeud(client: SupabaseClient, feudId: string): Promise<void> {
+  const { error } = await client.rpc('forfeit_feud', { p_feud_id: feudId });
+  if (error) throw error;
 }
 
 export async function blockUser(client: SupabaseClient, targetId: string): Promise<void> {

@@ -46,4 +46,25 @@ describe('towerGeometry', () => {
     expect(g.theirHeight).toBe(0);
     expect(Number.isNaN(g.myHeight)).toBe(false);
   });
+
+  it('latest aggregation: newest entry is the whole tower', () => {
+    const g = towerGeometry({
+      mode: 'showdown', goal: 100, myId: 'me', them: 'them', aggregation: 'latest',
+      entries: [entry('me', 60, true), entry('me', 80, false), entry('them', 90, true)],
+    });
+    expect(g.myTotal).toBe(80); // not 140
+    expect(g.theirTotal).toBe(90);
+    expect(g.myHeight).toBeCloseTo(0.8);
+    expect(g.mySegments).toEqual([{ fraction: 1, chronicled: false }]); // newest entry's flag
+    expect(g.theirSegments).toEqual([{ fraction: 1, chronicled: true }]);
+  });
+
+  it('latest aggregation endless: towers normalized to the higher level', () => {
+    const g = towerGeometry({
+      mode: 'endless', goal: null, myId: 'me', them: 'them', aggregation: 'latest',
+      entries: [entry('me', 50, true), entry('them', 200, true)],
+    });
+    expect(g.myHeight).toBeCloseTo(0.25);
+    expect(g.theirHeight).toBe(1);
+  });
 });

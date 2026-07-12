@@ -8,6 +8,7 @@ export interface OrdealRow {
   unit_custom: string | null;
   is_custom: boolean;
   language: string | null;
+  aggregation?: 'sum' | 'latest'; // absent in old fixtures → treat as 'sum'
 }
 
 export function ordealLabel(row: OrdealRow, lang: string): string {

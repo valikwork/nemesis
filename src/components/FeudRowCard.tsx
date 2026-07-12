@@ -25,6 +25,7 @@ export function FeudRowCard({ item, onPress }: Props) {
             ? ` · ${t('feud.modeShowdown', { goal: item.feud.goal_value })}`
             : ''}
         </Text>
+        {item.goneSoft && <Text style={styles.goneSoft}>{t('feud.goneSoft')}</Text>}
       </View>
       <View style={styles.scores}>
         <Text style={styles.score}>{item.myTotal} : {item.theirTotal}</Text>
@@ -45,6 +46,7 @@ const styles = StyleSheet.create({
   mid: { flex: 1 },
   opponent: { color: colors.bone, fontSize: 16 },
   ordeal: { color: colors.smoke, fontSize: 12, marginTop: 2 },
+  goneSoft: { color: colors.venomDeep, fontSize: 11, fontStyle: 'italic', marginTop: 2 },
   scores: { alignItems: 'flex-end' },
   score: { color: colors.bone, fontSize: 16 },
   unit: { color: colors.smoke, fontSize: 10 },

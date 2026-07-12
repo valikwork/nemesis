@@ -30,7 +30,10 @@
     "skillHintTitle": "Назви свою майстерність",
     "sealTitle": "Скріпи свою подобу",
     "sealCta": "Скріпити кров'ю",
-    "skillHintSubtitle": "Скільки {{unit}}?"
+    "skillHintSubtitle": "Скільки {{unit}}?",
+    "forgeAggLabel": "Як рахувати?",
+    "aggSum": "Лік — справи додаються",
+    "aggLatest": "Мірило — важить останній показник"
   },
   "common": {
     "next": "Далі",

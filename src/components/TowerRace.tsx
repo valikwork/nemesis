@@ -11,6 +11,7 @@ interface Props {
   myName: string;
   theirName: string;
   unit: string;
+  aggregation?: 'sum' | 'latest';
 }
 
 const TOWER_HEIGHT = 220;
@@ -34,8 +35,8 @@ function Tower({ height, segments, mist }: { height: number; segments: { fractio
   );
 }
 
-export function TowerRace({ mode, goal, myId, them, entries, myName, theirName, unit }: Props) {
-  const g = towerGeometry({ mode, goal, myId, them, entries });
+export function TowerRace({ mode, goal, myId, them, entries, myName, theirName, unit, aggregation }: Props) {
+  const g = towerGeometry({ mode, goal, myId, them, entries, aggregation });
   return (
     <View style={styles.root}>
       {g.goalLine != null && (

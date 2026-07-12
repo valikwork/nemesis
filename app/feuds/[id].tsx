@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import * as ImagePicker from 'expo-image-picker';
 import { supabase } from '../../src/lib/supabase';
 import { useSession } from '../../src/auth/session';
-import { listScores, logScore, type FeudRow, type ScoreEntry } from '../../src/lib/feuds';
+import { listScores, logScore, forfeitFeud, opponentGoneSoft, type FeudRow, type ScoreEntry } from '../../src/lib/feuds';
 import { declareArch, dissolveArch } from '../../src/lib/deck';
 import { notifyOpponent, notifyProfile } from '../../src/lib/push';
 import {
@@ -133,6 +133,8 @@ export default function FeudScreen() {
   const opponentId = feud.profile_a === myId ? feud.profile_b : feud.profile_a;
   const ended = feud.status === 'ended';
   const iWon = ended && feud.winner === myId;
+  const theirLastEntry = [...entries].reverse().find((e) => e.author === opponentId);
+  const goneSoft = opponentGoneSoft(feud, theirLastEntry?.created_at);
   const myEntries = entries.filter((e) => e.author === myId);
   const rumorCount = myEntries.filter((e) => e.proof_url == null).length;
   const rumorPct = myEntries.length > 0 ? Math.round((rumorCount / myEntries.length) * 100) : 0;
@@ -160,9 +162,32 @@ export default function FeudScreen() {
           )}
         </View>
       )}
+      {goneSoft && (
+        <View style={styles.goneSoftRow}>
+          <Text style={styles.goneSoftText}>{t('feud.goneSoft')}</Text>
+          <Pressable
+            disabled={busy}
+            onPress={async () => {
+              setBusy(true);
+              setError(null);
+              try {
+                await forfeitFeud(supabase, feud.id);
+                await load();
+              } catch (e) {
+                setError(errMessage(e));
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            <Text style={styles.forfeitCta}>{t('feud.forfeitCta')}</Text>
+          </Pressable>
+        </View>
+      )}
       <TowerRace
         mode={feud.mode}
         goal={feud.goal_value}
+        aggregation={ordeal.aggregation ?? 'sum'}
         myId={myId}
         them={opponentId}
         entries={entries.map((e) => ({ author: e.author, value: Number(e.value), chronicled: e.proof_url != null }))}
@@ -307,6 +332,9 @@ const styles = StyleSheet.create({
   header: { color: colors.bone, fontSize: 22, textAlign: 'center', letterSpacing: 1 },
   subheader: { color: colors.smoke, fontSize: 13, textAlign: 'center' },
   archBadge: { color: colors.blood, fontSize: 13, letterSpacing: 2, textAlign: 'center' },
+  goneSoftRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: spacing[1] },
+  goneSoftText: { color: colors.smoke, fontSize: 13, fontStyle: 'italic', flexShrink: 1 },
+  forfeitCta: { color: colors.blood, fontSize: 13, letterSpacing: 1 },
   archNote: { color: colors.venomDeep, fontSize: 12, textAlign: 'center' },
   archBody: { color: colors.ash, fontSize: 14, textAlign: 'center', lineHeight: 20 },
   verdict: { alignItems: 'center', marginVertical: spacing[1] },

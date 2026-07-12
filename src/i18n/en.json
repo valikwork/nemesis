@@ -30,7 +30,10 @@
     "skillHintTitle": "Name thy prowess",
     "sealTitle": "Seal thy persona",
     "sealCta": "Seal it in blood",
-    "skillHintSubtitle": "How many {{unit}}?"
+    "skillHintSubtitle": "How many {{unit}}?",
+    "forgeAggLabel": "How is it scored?",
+    "aggSum": "Tally — deeds add up",
+    "aggLatest": "Measure — the latest mark stands"
   },
   "common": {
     "next": "Onward",
