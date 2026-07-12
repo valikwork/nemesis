@@ -47,7 +47,7 @@ maybe('taunt system', () => {
     expect(ukBanks![0].word).toBe('Твоє');
   });
 
-  it('member sends a taunt; second same-day taunt rejected as taunt_spent', async () => {
+  it('member sends taunts without limit', async () => {
     const a = await userWithProfile('taunt-a', 'Taunt Anna');
     const b = await userWithProfile('taunt-b', 'Taunt Bo');
     const feudId = await makeFeud(a, b);
@@ -59,14 +59,14 @@ maybe('taunt system', () => {
     expect(error).toBeNull();
     expect(sent.picks).toEqual([0, 1, 2, 3]);
 
+    // Unlimited taunts (owner decision 2026-07-12): same-day sends all succeed.
     const { error: again } = await a.client.rpc('send_taunt', {
       p_feud_id: feudId, p_template_id: tpl!.id, p_picks: [1, 1, 1, 1],
     });
-    expect(again).not.toBeNull();
-    expect(again!.message).toContain('taunt_spent');
+    expect(again).toBeNull();
 
     const { data: visible } = await b.client.from('taunts').select('*').eq('feud_id', feudId);
-    expect(visible).toHaveLength(1);
+    expect(visible).toHaveLength(2);
   });
 
   it('rejects out-of-range picks and non-members', async () => {
