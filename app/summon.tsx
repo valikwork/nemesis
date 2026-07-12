@@ -94,9 +94,16 @@ export default function Summon() {
                 {ordealLabel(inv.ordeal, i18n.language)}
                 {inv.mode === 'showdown' ? ` · ${inv.goal_value}` : ''}
               </Text>
-              <Pressable onPress={async () => { await revokeInvite(supabase, inv.id); reload(); }}>
-                <Text style={styles.revoke}>{t('summon.revoke')}</Text>
-              </Pressable>
+              <View style={styles.pendingActions}>
+                <Pressable
+                  onPress={() => Share.share({ message: `${t('summon.shareText')}\nnemesis://feud/${inv.code}` })}
+                >
+                  <Text style={styles.reshare}>{t('summon.reshare')}</Text>
+                </Pressable>
+                <Pressable onPress={async () => { await revokeInvite(supabase, inv.id); reload(); }}>
+                  <Text style={styles.revoke}>{t('summon.revoke')}</Text>
+                </Pressable>
+              </View>
             </View>
           ))}
         </View>
@@ -124,6 +131,8 @@ const styles = StyleSheet.create({
   pendingWrap: { marginTop: spacing[2], gap: spacing[1] },
   pendingTitle: { color: colors.smoke, fontSize: 12, letterSpacing: 2, textTransform: 'uppercase' },
   pendingRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  pendingText: { color: colors.ash, fontSize: 13 },
+  pendingText: { color: colors.ash, fontSize: 13, flexShrink: 1 },
+  pendingActions: { flexDirection: 'row', gap: spacing[3] },
+  reshare: { color: colors.venom, fontSize: 13 },
   revoke: { color: colors.blood, fontSize: 13 },
 });
