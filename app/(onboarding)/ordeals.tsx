@@ -130,6 +130,7 @@ export default function OrdealsStep() {
           <View style={styles.modal}>
             <Text style={styles.title}>{t('onboarding.skillHintTitle')}</Text>
             <GrimInput value={hintText} onChangeText={setHintText} placeholder="1450"
+              keyboardType="numeric"
               error={validateSkillHint(hintText) ? t(`validation.${validateSkillHint(hintText)}`) : null} />
             <GrimButton label={t('common.confirm')} onPress={confirmHint} disabled={validateSkillHint(hintText) != null} />
             <GrimButton label={t('common.cancel')} variant="ghost" onPress={() => setHintFor(null)} />
