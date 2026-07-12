@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import * as ImagePicker from 'expo-image-picker';
 import { supabase } from '../src/lib/supabase';
 import { useSession } from '../src/auth/session';
 import { setAppLanguage } from '../src/i18n';
@@ -20,6 +21,8 @@ export default function Settings() {
 
   const [catchphrase, setCatchphrase] = useState('');
   const [bio, setBio] = useState('');
+  const [realName, setRealName] = useState('');
+  const [hasPortrait, setHasPortrait] = useState(false);
   const [tier, setTier] = useState(1);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,6 +39,12 @@ export default function Settings() {
         setCatchphrase(data.catchphrase ?? '');
         setBio(data.bio ?? '');
         setTier(data.brutality_tier ?? 1);
+      });
+    supabase.from('unmasked_identities').select('real_name, photo_url').eq('profile_id', uid).maybeSingle()
+      .then(({ data }) => {
+        if (data == null) return;
+        setRealName(data.real_name ?? '');
+        setHasPortrait(data.photo_url != null);
       });
     return () => {
       if (savedTimer.current != null) clearTimeout(savedTimer.current);
@@ -59,6 +68,34 @@ export default function Settings() {
         brutality_tier: tier,
       }).eq('id', uid);
       if (e) throw e;
+      const { error: ie } = await supabase.from('unmasked_identities')
+        .upsert({ profile_id: uid, real_name: realName.trim() || null });
+      if (ie) throw ie;
+      flashSaved();
+    } catch (e) {
+      setError(errMessage(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function pickPortrait() {
+    if (uid == null) return;
+    const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.6 });
+    if (res.canceled || res.assets[0] == null) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const path = `${uid}/portrait.jpg`;
+      const resp = await fetch(res.assets[0].uri);
+      const blob = await resp.arrayBuffer();
+      const { error: upErr } = await supabase.storage.from('unmask-photos')
+        .upload(path, blob, { contentType: 'image/jpeg', upsert: true });
+      if (upErr) throw upErr;
+      const { error: ie } = await supabase.from('unmasked_identities')
+        .upsert({ profile_id: uid, photo_url: path });
+      if (ie) throw ie;
+      setHasPortrait(true);
       flashSaved();
     } catch (e) {
       setError(errMessage(e));
@@ -114,6 +151,16 @@ export default function Settings() {
         <GrimInput value={bio} onChangeText={setBio} multiline numberOfLines={4} style={styles.bioInput}
           placeholder="…"
           error={validateBio(bio) ? t(`validation.${validateBio(bio)}`) : null} />
+
+        <Text style={styles.section}>{t('settings.identityTitle')}</Text>
+        <Text style={styles.identityHint}>{t('settings.identityHint')}</Text>
+        <Text style={styles.fieldLabel}>{t('settings.realName')}</Text>
+        <GrimInput value={realName} onChangeText={setRealName} placeholder="…" />
+        <Pressable onPress={pickPortrait} disabled={busy}>
+          <Text style={styles.portraitCta}>
+            {hasPortrait ? t('settings.identityPhotoSet') : t('settings.identityPhoto')}
+          </Text>
+        </Pressable>
 
         <Text style={styles.section}>{t('settings.language')}</Text>
         <View style={styles.langRow}>
@@ -190,6 +237,8 @@ const styles = StyleSheet.create({
   title: { color: colors.bone, fontSize: 22, textAlign: 'center', letterSpacing: 1 },
   section: { color: colors.smoke, fontSize: 12, letterSpacing: 2, textTransform: 'uppercase', marginTop: spacing[3] },
   fieldLabel: { color: colors.ash, fontSize: 12, letterSpacing: 1 },
+  identityHint: { color: colors.smoke, fontSize: 12 },
+  portraitCta: { color: colors.venom, fontSize: 13 },
   bioInput: { minHeight: 90, textAlignVertical: 'top' },
   langRow: { flexDirection: 'row', gap: spacing[2] },
   langChip: { flex: 1, alignItems: 'center', paddingVertical: spacing[2], borderRadius: radii.button, borderWidth: 1, borderColor: colors.venomDim, backgroundColor: colors.crypt },

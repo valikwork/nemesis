@@ -5,22 +5,43 @@ import { useTranslation } from 'react-i18next';
 import { supabase } from '../src/lib/supabase';
 import { useSession } from '../src/auth/session';
 import { listFeudsWithMeta, type FeudWithMeta } from '../src/lib/feuds';
+import { respondFeud, resolveDeclare, myDeclares, type DeclareRow } from '../src/lib/deck';
+import { notifyOpponent } from '../src/lib/push';
 import { FeudRowCard } from '../src/components/FeudRowCard';
 import { GrimButton } from '../src/components/GrimButton';
-import { colors, semantic, spacing } from '../src/theme/tokens';
+import { colors, radii, semantic, spacing } from '../src/theme/tokens';
+import { errMessage } from '../src/lib/err';
+
+interface DeclareBanner extends DeclareRow {
+  declarer_name: string;
+}
 
 export default function Home() {
   const { t } = useTranslation();
   const { session } = useSession();
   const router = useRouter();
   const [feuds, setFeuds] = useState<FeudWithMeta[]>([]);
+  const [declares, setDeclares] = useState<DeclareBanner[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (session == null) return;
     setRefreshing(true);
     try {
-      setFeuds(await listFeudsWithMeta(supabase, session.user.id));
+      const [feudRows, declareRows] = await Promise.all([
+        listFeudsWithMeta(supabase, session.user.id),
+        myDeclares(supabase),
+      ]);
+      setFeuds(feudRows);
+      const incoming = declareRows.filter((d) => d.status === 'pending' && d.target === session.user.id);
+      const names = new Map<string, string>();
+      if (incoming.length > 0) {
+        const { data } = await supabase.from('profiles').select('id, nemesis_name')
+          .in('id', incoming.map((d) => d.declarer));
+        for (const p of data ?? []) names.set(p.id, p.nemesis_name);
+      }
+      setDeclares(incoming.map((d) => ({ ...d, declarer_name: names.get(d.declarer) ?? '???' })));
     } finally {
       setRefreshing(false);
     }
@@ -32,8 +53,31 @@ export default function Home() {
     }, [load]),
   );
 
+  const myId = session?.user.id ?? '';
   const active = feuds.filter((f) => f.feud.status === 'active');
+  const proposed = feuds.filter((f) => f.feud.status === 'proposed');
   const buried = feuds.filter((f) => f.feud.status === 'ended' || f.feud.status === 'dissolved');
+
+  async function answerGauntlet(feudId: string, accept: boolean) {
+    setError(null);
+    try {
+      await respondFeud(supabase, feudId, accept);
+      if (accept) notifyOpponent(supabase, 'match', feudId); // fire-and-forget
+      await load();
+    } catch (e) {
+      setError(errMessage(e));
+    }
+  }
+
+  async function answerDeclare(declareId: string, accept: boolean) {
+    setError(null);
+    try {
+      await resolveDeclare(supabase, declareId, accept);
+      await load();
+    } catch (e) {
+      setError(errMessage(e));
+    }
+  }
 
   return (
     <View style={styles.root}>
@@ -42,6 +86,7 @@ export default function Home() {
       </Pressable>
       <Text style={styles.logo}>NEMESIS</Text>
       <Text style={styles.title}>{t('home.title')}</Text>
+      {error != null && <Text style={styles.error}>{error}</Text>}
       <FlatList
         data={active}
         keyExtractor={(f) => f.feud.id}
@@ -50,7 +95,55 @@ export default function Home() {
         renderItem={({ item }) => (
           <FeudRowCard item={item} onPress={() => router.push(`/feuds/${item.feud.id}`)} />
         )}
-        ListEmptyComponent={<Text style={styles.empty}>{t('home.empty')}</Text>}
+        ListHeaderComponent={
+          <>
+            {declares.map((d) => (
+              <View key={d.id} style={styles.banner}>
+                <Text style={styles.bannerText}>{t('arch.received', { name: d.declarer_name })}</Text>
+                <View style={styles.bannerRow}>
+                  <Pressable onPress={() => answerDeclare(d.id, false)}>
+                    <Text style={styles.bannerDecline}>{t('landing.decline')}</Text>
+                  </Pressable>
+                  <Pressable onPress={() => answerDeclare(d.id, true)}>
+                    <Text style={styles.bannerAccept}>{t('landing.accept')}</Text>
+                  </Pressable>
+                </View>
+              </View>
+            ))}
+            {proposed.length > 0 && (
+              <View style={styles.sectionWrap}>
+                <Text style={styles.sectionTitle}>{t('home.gauntletTitle')}</Text>
+                {proposed.map((item) => {
+                  const mine = item.feud.proposed_by === myId;
+                  return (
+                    <View key={item.feud.id} style={styles.gauntlet}>
+                      <FeudRowCard item={item} onPress={() => {}} />
+                      {mine ? (
+                        <Text style={styles.gauntletAwait}>
+                          {t('home.gauntletAwait', { name: item.opponent.nemesis_name })}
+                        </Text>
+                      ) : (
+                        <View style={styles.bannerRow}>
+                          <Pressable onPress={() => answerGauntlet(item.feud.id, false)}>
+                            <Text style={styles.bannerDecline}>{t('landing.decline')}</Text>
+                          </Pressable>
+                          <Pressable onPress={() => answerGauntlet(item.feud.id, true)}>
+                            <Text style={styles.bannerAccept}>{t('landing.accept')}</Text>
+                          </Pressable>
+                        </View>
+                      )}
+                    </View>
+                  );
+                })}
+              </View>
+            )}
+          </>
+        }
+        ListEmptyComponent={
+          proposed.length === 0 && declares.length === 0
+            ? <Text style={styles.empty}>{t('home.empty')}</Text>
+            : null
+        }
         ListFooterComponent={
           buried.length > 0 ? (
             <View style={styles.buriedWrap}>
@@ -62,6 +155,7 @@ export default function Home() {
           ) : null
         }
       />
+      <GrimButton label={t('deck.tab')} variant="ghost" onPress={() => router.push('/deck')} />
       <GrimButton label={t('home.summonCta')} onPress={() => router.push('/summon')} />
     </View>
   );
@@ -75,6 +169,19 @@ const styles = StyleSheet.create({
   title: { color: colors.venomDeep, fontSize: 13, letterSpacing: 2, textAlign: 'center', marginBottom: spacing[2] },
   list: { gap: spacing[2], flexGrow: 1 },
   empty: { color: colors.smoke, fontSize: 14, textAlign: 'center', marginTop: spacing[5] },
+  error: { color: colors.blood, fontSize: 13, textAlign: 'center' },
+  banner: {
+    backgroundColor: colors.bloodMist, borderWidth: 1, borderColor: colors.blood,
+    borderRadius: radii.card, padding: spacing[3], gap: spacing[2],
+  },
+  bannerText: { color: colors.bone, fontSize: 14, lineHeight: 20 },
+  bannerRow: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing[4] },
+  bannerAccept: { color: colors.blood, fontSize: 14, letterSpacing: 1 },
+  bannerDecline: { color: colors.smoke, fontSize: 14 },
+  sectionWrap: { gap: spacing[2] },
+  sectionTitle: { color: colors.smoke, fontSize: 12, letterSpacing: 2, textTransform: 'uppercase' },
+  gauntlet: { gap: spacing[1] },
+  gauntletAwait: { color: colors.venomDeep, fontSize: 12, textAlign: 'right' },
   buriedWrap: { marginTop: spacing[4], gap: spacing[2] },
   buriedTitle: { color: colors.smoke, fontSize: 12, letterSpacing: 2, textTransform: 'uppercase' },
 });

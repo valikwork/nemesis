@@ -6,7 +6,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { supabase } from '../../src/lib/supabase';
 import { useSession } from '../../src/auth/session';
 import { listScores, logScore, type FeudRow, type ScoreEntry } from '../../src/lib/feuds';
-import { notifyOpponent } from '../../src/lib/push';
+import { declareArch, dissolveArch } from '../../src/lib/deck';
+import { notifyOpponent, notifyProfile } from '../../src/lib/push';
 import {
   listTaunts, assembleTaunt, fetchTemplateWithBanks,
   type TauntRow, type TauntTemplate, type TauntBankWord,
@@ -39,6 +40,9 @@ export default function FeudScreen() {
   const [error, setError] = useState<string | null>(null);
   const [forgeOpen, setForgeOpen] = useState(false);
   const [safetyOpen, setSafetyOpen] = useState(false);
+  const [archConfirm, setArchConfirm] = useState<'declare' | 'dissolve' | null>(null);
+  const [archNote, setArchNote] = useState<string | null>(null);
+  const [realName, setRealName] = useState<string | null>(null);
   const [taunts, setTaunts] = useState<TauntRow[]>([]);
   const [tauntKits, setTauntKits] = useState<Map<string, { template: TauntTemplate; banks: TauntBankWord[] }>>(new Map());
 
@@ -56,6 +60,14 @@ export default function FeudScreen() {
     ]);
     setOrdeal(o as OrdealRow);
     setOpponentName(p?.nemesis_name ?? '???');
+    if (f.is_arch && f.unmasked_at != null && f.status === 'active') {
+      // readable only during an active unmasked pact (unmask_pact policy)
+      const { data: um } = await supabase.from('unmasked_identities')
+        .select('real_name').eq('profile_id', opponentId).maybeSingle();
+      setRealName(um?.real_name ?? null);
+    } else {
+      setRealName(null);
+    }
     setEntries(scores);
     setTaunts(tauntRows);
     setTauntKits((prev) => {
@@ -131,7 +143,13 @@ export default function FeudScreen() {
         <Text style={styles.safetyMenuText}>{t('safety.menu')}</Text>
       </Pressable>
       <Text style={styles.header}>{opponentName}</Text>
+      {feud.is_arch && (
+        <Text style={styles.archBadge}>
+          ⚜ {t('arch.title')}{realName != null ? ` · ${realName}` : ''}
+        </Text>
+      )}
       <Text style={styles.subheader}>{ordealLabel(ordeal, i18n.language)}</Text>
+      {archNote != null && <Text style={styles.archNote}>{archNote}</Text>}
       {ended && (
         <View style={styles.verdict}>
           <Text style={[styles.verdictText, iWon ? styles.won : styles.lost]}>
@@ -154,6 +172,12 @@ export default function FeudScreen() {
       />
       {!ended && <GrimButton label={t('feud.logDeed')} onPress={() => setLogOpen(true)} />}
       {!ended && <GrimButton label={t('forge.cta')} variant="ghost" onPress={() => setForgeOpen(true)} />}
+      {!ended && !feud.is_arch && feud.status === 'active' && (
+        <GrimButton label={t('arch.declareCta')} variant="ghost" onPress={() => setArchConfirm('declare')} />
+      )}
+      {feud.is_arch && feud.status === 'active' && (
+        <GrimButton label={t('arch.dissolveCta')} variant="ghost" onPress={() => setArchConfirm('dissolve')} />
+      )}
       {taunts.length > 0 && (
         <>
           <Text style={styles.chronicleTitle}>{t('forge.missives')}</Text>
@@ -224,6 +248,46 @@ export default function FeudScreen() {
         onSent={() => { notifyOpponent(supabase, 'taunt', feud.id); load(); }}
       />
 
+      <Modal visible={archConfirm != null} transparent animationType="fade" onRequestClose={() => setArchConfirm(null)}>
+        <View style={styles.modalScrim}>
+          <View style={styles.modal}>
+            <Text style={styles.header}>
+              {archConfirm === 'declare' ? t('arch.confirmTitle') : t('arch.title')}
+            </Text>
+            <Text style={styles.archBody}>
+              {archConfirm === 'declare' ? t('arch.confirmBody') : t('arch.dissolveConfirm')}
+            </Text>
+            {error != null && <Text style={styles.error}>{error}</Text>}
+            <GrimButton
+              label={t('common.confirm')}
+              disabled={busy}
+              onPress={async () => {
+                setBusy(true);
+                setError(null);
+                try {
+                  if (archConfirm === 'declare') {
+                    await declareArch(supabase, opponentId);
+                    notifyProfile(supabase, 'declare', opponentId); // fire-and-forget
+                    setArchNote(t('arch.declared'));
+                  } else {
+                    await dissolveArch(supabase, feud.id);
+                    router.replace('/');
+                    return;
+                  }
+                  setArchConfirm(null);
+                } catch (e) {
+                  setError(errMessage(e));
+                } finally {
+                  setBusy(false);
+                }
+              }}
+            />
+            <GrimButton label={t('common.cancel')} variant="ghost"
+              onPress={() => { setArchConfirm(null); setError(null); }} />
+          </View>
+        </View>
+      </Modal>
+
       <SafetySheet
         visible={safetyOpen}
         targetId={opponentId}
@@ -242,6 +306,9 @@ const styles = StyleSheet.create({
   safetyMenuText: { color: colors.smoke, fontSize: 22 },
   header: { color: colors.bone, fontSize: 22, textAlign: 'center', letterSpacing: 1 },
   subheader: { color: colors.smoke, fontSize: 13, textAlign: 'center' },
+  archBadge: { color: colors.blood, fontSize: 13, letterSpacing: 2, textAlign: 'center' },
+  archNote: { color: colors.venomDeep, fontSize: 12, textAlign: 'center' },
+  archBody: { color: colors.ash, fontSize: 14, textAlign: 'center', lineHeight: 20 },
   verdict: { alignItems: 'center', marginVertical: spacing[1] },
   verdictText: { fontSize: 28, letterSpacing: 4 },
   won: { color: colors.blood },

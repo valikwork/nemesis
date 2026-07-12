@@ -34,3 +34,17 @@ export async function notifyOpponent(
     // fire-and-forget
   }
 }
+
+// Profile-scoped kinds (no feud yet): the EF verifies the relationship —
+// mutual liked swipes for deck_match, a pending declare for declare.
+export async function notifyProfile(
+  client: SupabaseClient,
+  kind: 'deck_match' | 'declare',
+  targetProfileId: string,
+): Promise<void> {
+  try {
+    await client.functions.invoke('notify', { body: { kind, target_profile_id: targetProfileId } });
+  } catch {
+    // fire-and-forget
+  }
+}

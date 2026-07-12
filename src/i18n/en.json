@@ -66,7 +66,10 @@
     "empty": "No feuds yet. Summon a friend and begin.",
     "buried": "Buried",
     "summonCta": "Summon a friend",
-    "pendingTitle": "Pending summons"
+    "pendingTitle": "Pending summons",
+    "gauntletTitle": "Thrown gauntlets",
+    "gauntletFrom": "{{name}} throws the gauntlet",
+    "gauntletAwait": "Awaits {{name}}'s answer"
   },
   "landing": {
     "accept": "Answer the challenge",
@@ -85,7 +88,9 @@
     "challenge": "Challenge",
     "matchTitle": "AHHA, WE MEET AGAIN.",
     "matchCta": "Begin the feud",
-    "distanceAway": "{{km}} km away"
+    "distanceAway": "{{km}} km away",
+    "throwGlove": "Throw the glove",
+    "radiusLabel": "Reach: {{km}} km"
   },
   "feud": {
     "modeEndless": "Endless feud",
@@ -127,7 +132,11 @@
     "pending": "Thy declaration awaits an answer.",
     "received": "{{name}} names thee arch-nemesis. Accept the unmasking pact?",
     "unmask": "The masks fall.",
-    "dissolveConfirm": "Dissolve the pact? The chronicle freezes. Nothing more is revealed."
+    "dissolveConfirm": "Dissolve the pact? The chronicle freezes. Nothing more is revealed.",
+    "declareCta": "Declare arch-nemesis",
+    "dissolveCta": "Dissolve the pact",
+    "title": "Arch-Nemesis",
+    "declared": "The declaration is sent."
   },
   "brutality": {
     "title": "Brutality",
@@ -156,7 +165,12 @@
     "save": "Carve it",
     "saved": "Carved.",
     "dangerZone": "Point of no return",
-    "eraseBody": "Thy chronicle, feuds, and name shall be wiped from all records. Forever."
+    "eraseBody": "Thy chronicle, feuds, and name shall be wiped from all records. Forever.",
+    "identityTitle": "True identity",
+    "realName": "Real name",
+    "identityHint": "Revealed only to thy arch-nemesis.",
+    "identityPhoto": "Choose a portrait",
+    "identityPhotoSet": "Portrait chosen"
   },
   "safety": {
     "menu": "⋯",

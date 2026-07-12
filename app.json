@@ -34,7 +34,13 @@
           "imageWidth": 76
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Nemesis uses your location only to find rivals within your chosen radius. Exact position is never shown to anyone."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
