@@ -4,6 +4,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { semantic } from '../src/theme/tokens';
 import { SessionProvider, useSession } from '../src/auth/session';
 import { routeFor } from '../src/auth/route-for';
+import { supabase } from '../src/lib/supabase';
+import { registerPushToken } from '../src/lib/push';
 import '../src/i18n';
 
 // A summons deep link (nemesis://feud/{code}) opened by a signed-out or
@@ -42,6 +44,12 @@ function Guard() {
       }
     })();
   }, [loading, session, hasProfile, segments, params.code]);
+
+  useEffect(() => {
+    if (session != null && hasProfile) {
+      registerPushToken(supabase, session.user.id);
+    }
+  }, [session?.user.id, hasProfile]);
 
   return (
     <Stack

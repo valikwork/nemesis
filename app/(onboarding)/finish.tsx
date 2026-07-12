@@ -5,6 +5,7 @@ import { supabase } from '../../src/lib/supabase';
 import { GrimButton } from '../../src/components/GrimButton';
 import { loadDraft, clearDraft } from '../../src/onboarding/draft';
 import { completeOnboarding } from '../../src/onboarding/complete';
+import { registerPushToken } from '../../src/lib/push';
 import { useSession } from '../../src/auth/session';
 import { colors, semantic, spacing } from '../../src/theme/tokens';
 
@@ -25,6 +26,9 @@ export default function FinishStep() {
       await completeOnboarding(supabase, draft);
       await clearDraft();
       await refreshProfile(); // root guard sees hasProfile → routes home
+      supabase.auth.getUser().then(({ data }) => {
+        if (data.user != null) registerPushToken(supabase, data.user.id);
+      }); // fire-and-forget: push is optional, must not block routing
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
       setBusy(false);

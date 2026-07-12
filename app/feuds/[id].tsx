@@ -6,6 +6,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { supabase } from '../../src/lib/supabase';
 import { useSession } from '../../src/auth/session';
 import { listScores, logScore, type FeudRow, type ScoreEntry } from '../../src/lib/feuds';
+import { notifyOpponent } from '../../src/lib/push';
 import { ordealLabel, ordealUnit, type OrdealRow } from '../../src/onboarding/ordeal-labels';
 import { TowerRace } from '../../src/components/TowerRace';
 import { GrimButton } from '../../src/components/GrimButton';
@@ -80,6 +81,7 @@ export default function FeudScreen() {
         proofUrl = path;
       }
       await logScore(supabase, { feudId: feud.id, value: num, note, proofUrl });
+      notifyOpponent(supabase, 'score', feud.id); // fire-and-forget
       setLogOpen(false);
       setValue(''); setNote(''); setProofUri(null);
       await load();

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { supabase } from '../../src/lib/supabase';
 import { useSession } from '../../src/auth/session';
 import { getInvite, acceptInvite, type InviteLanding } from '../../src/lib/feuds';
+import { notifyOpponent } from '../../src/lib/push';
 import { ordealLabel } from '../../src/onboarding/ordeal-labels';
 import { SIGILS } from '../../src/onboarding/sigils';
 import { GrimButton } from '../../src/components/GrimButton';
@@ -37,6 +38,7 @@ export default function InviteLandingScreen() {
     try {
       const feudId = await acceptInvite(supabase, code);
       setMatched(feudId);
+      notifyOpponent(supabase, 'match', feudId); // fire-and-forget
     } catch {
       setDead(true);
     } finally {
