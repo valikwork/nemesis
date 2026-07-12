@@ -10,8 +10,9 @@ const maybe = anon && service ? describe : describe.skip;
 
 const admin = () => createClient(url, service);
 
-// Kyiv-ish; ~0.014 lon ≈ 1 km at this latitude
-const BASE = { lon: 30.52, lat: 50.45 };
+// Southern-ocean nowhere: keeps test fixtures out of the deck during manual
+// sim walks (sims sit in Kyiv — fixtures at the same coords polluted the deck)
+const BASE = { lon: 140.0, lat: -55.0 };
 
 async function locatedUser(
   prefix: string, name: string,
