@@ -288,3 +288,9 @@ Deep linking: `nemesis://feud/{code}` + universal/app links on both platforms; s
 - `profiles.expo_push_token` written by client on permission grant; token acquisition may fail in dev/simulator — always optional.
 
 **Amendment 2026-07-12 (owner decision, P4-6 walk): taunt daily limit REMOVED.** Taunts are unlimited per feud. Migration drops the `taunts_daily` unique index and the `created_day` column; `send_taunt`'s `taunt_spent` path becomes unreachable (kept as dead guard, harmless). The `forge_spent` copy stays in the deck as reserve. Product spec §7's "1 per day" rule is superseded.
+
+**Amendment 2026-07-12 (Plan 5a): `block_user` RPC; `delete-account` EF confirmed; dead-session handling.**
+- `block_user(p_target uuid) returns void` — security definer: inserts the block row AND dissolves all live feuds between the pair atomically (`status='dissolved'`, `ended_at=now()`), both directions checked. Plain client inserts into `blocks` remain possible (blocks_own policy) but the RPC is the blessed path — a block without feud dissolution violates the product spec.
+- `delete-account` Edge Function (second EF): verifies caller JWT, service-role `auth.admin.deleteUser(uid)` — FK cascades wipe profiles/feuds/scores/taunts (per §1 `on delete cascade`); custom ordeals survive with `created_by = null` (2026-07-11 amendment).
+- **Dead-session rule:** clients must detect a valid-JWT-but-deleted-user state (server `getUser()` failure / user_not_found) and force `signOut()` — sessions outlive accounts by design of JWTs.
+- Font license verification consciously deferred by owner (2026-07-12) — tracked for store prep, not a Plan 5/6 blocker.
