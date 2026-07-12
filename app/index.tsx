@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, FlatList, RefreshControl, Pressable } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../src/lib/supabase';
@@ -37,6 +37,9 @@ export default function Home() {
 
   return (
     <View style={styles.root}>
+      <Pressable style={styles.gear} onPress={() => router.push('/settings')}>
+        <Text style={styles.gearText}>⚙︎</Text>
+      </Pressable>
       <Text style={styles.logo}>NEMESIS</Text>
       <Text style={styles.title}>{t('home.title')}</Text>
       <FlatList
@@ -66,6 +69,8 @@ export default function Home() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: semantic.bg, padding: spacing[4], paddingTop: spacing[5] * 2, gap: spacing[2] },
+  gear: { position: 'absolute', top: spacing[5] * 1.5, right: spacing[4] },
+  gearText: { color: colors.smoke, fontSize: 22 },
   logo: { color: semantic.text, fontSize: 30, letterSpacing: 5, textAlign: 'center' },
   title: { color: colors.venomDeep, fontSize: 13, letterSpacing: 2, textAlign: 'center', marginBottom: spacing[2] },
   list: { gap: spacing[2], flexGrow: 1 },

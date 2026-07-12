@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
+import i18n, { setAppLanguage } from '../i18n';
 
 export interface SessionState {
   loading: boolean;
@@ -32,7 +33,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       await supabase.auth.signOut();
       return false;
     }
-    const { data: profile } = await supabase.from('profiles').select('id').eq('id', data.user.id).maybeSingle();
+    const { data: profile } = await supabase.from('profiles').select('id, language').eq('id', data.user.id).maybeSingle();
+    if (profile?.language != null && profile.language !== i18n.language) {
+      await setAppLanguage(profile.language);
+    }
     return profile != null;
   }
 

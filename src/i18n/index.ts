@@ -13,4 +13,8 @@ i18n.use(initReactI18next).init({
   interpolation: { escapeValue: false },
 });
 
+export async function setAppLanguage(lang: 'en' | 'uk'): Promise<void> {
+  await i18n.changeLanguage(lang);
+}
+
 export default i18n;
