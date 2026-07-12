@@ -21,15 +21,24 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [hasProfile, setHasProfile] = useState(false);
 
-  async function checkProfile(s: Session | null): Promise<boolean> {
-    if (!s) return false;
-    const { data } = await supabase.from('profiles').select('id').eq('id', s.user.id).maybeSingle();
-    return data != null;
+  // Server-verified session check. A JWT can outlive its account (e.g. account
+  // deleted, dev db reset): getUser() asks the server. Dead session -> signOut
+  // so the guard lands on the auth gate instead of stranding the user
+  // (contract amendment 2026-07-12, dead-session rule).
+  async function verifySession(s: Session | null): Promise<boolean> {
+    if (s == null) return false;
+    const { data, error } = await supabase.auth.getUser();
+    if (error != null || data.user == null) {
+      await supabase.auth.signOut();
+      return false;
+    }
+    const { data: profile } = await supabase.from('profiles').select('id').eq('id', data.user.id).maybeSingle();
+    return profile != null;
   }
 
   async function refreshProfile() {
     const { data } = await supabase.auth.getSession();
-    setHasProfile(await checkProfile(data.session));
+    setHasProfile(await verifySession(data.session));
   }
 
   useEffect(() => {
@@ -37,13 +46,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(async ({ data }) => {
       if (!mounted) return;
       setSession(data.session);
-      setHasProfile(await checkProfile(data.session));
+      setHasProfile(await verifySession(data.session));
       setLoading(false);
     });
     const { data: sub } = supabase.auth.onAuthStateChange(async (_event, s) => {
       if (!mounted) return;
       setSession(s);
-      setHasProfile(await checkProfile(s));
+      setHasProfile(await verifySession(s));
       setLoading(false);
     });
     return () => { mounted = false; sub.subscription.unsubscribe(); };
