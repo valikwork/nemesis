@@ -40,7 +40,8 @@
         {
           "locationWhenInUsePermission": "Nemesis uses your location only to find rivals within your chosen radius. Exact position is never shown to anyone."
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true,

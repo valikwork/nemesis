@@ -9,6 +9,7 @@ import { setAppLanguage } from '../src/i18n';
 import { brutalityTiers, tierFor } from '../src/theme/brutality';
 import { validateCatchphrase, validateBio } from '../src/lib/validation';
 import { errMessage } from '../src/lib/err';
+import { useBrutality } from '../src/theme/brutality-context';
 import { GrimButton } from '../src/components/GrimButton';
 import { GrimInput } from '../src/components/GrimInput';
 import { colors, radii, semantic, spacing } from '../src/theme/tokens';
@@ -17,6 +18,7 @@ export default function Settings() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const { session } = useSession();
+  const { font, setLevel } = useBrutality();
   const uid = session?.user.id;
 
   const [catchphrase, setCatchphrase] = useState('');
@@ -68,6 +70,7 @@ export default function Settings() {
         brutality_tier: tier,
       }).eq('id', uid);
       if (e) throw e;
+      setLevel(tier); // theme flips live
       const { error: ie } = await supabase.from('unmasked_identities')
         .upsert({ profile_id: uid, real_name: realName.trim() || null });
       if (ie) throw ie;
@@ -140,7 +143,7 @@ export default function Settings() {
         <Text style={styles.backArrowText}>←</Text>
       </Pressable>
       <ScrollView style={styles.scroll} contentContainerStyle={styles.root}>
-        <Text style={styles.title}>{t('settings.title')}</Text>
+        <Text style={[styles.title, { fontFamily: font('display') }]}>{t('settings.title')}</Text>
 
         <Text style={styles.section}>{t('settings.persona')}</Text>
         <Text style={styles.fieldLabel}>{t('onboarding.catchphraseTitle')}</Text>
@@ -201,7 +204,8 @@ export default function Settings() {
               <Pressable key={bt.level}
                 onPress={() => { setTier(bt.level); setTierOpen(false); }}
                 style={[styles.tierRow, tier === bt.level && styles.tierRowOn]}>
-                <Text style={[styles.tierName, tier === bt.level && styles.tierNameOn]}>{t(bt.nameKey)}</Text>
+                {/* self-demonstrating: each row wears its own tier's display font */}
+                <Text style={[styles.tierName, { fontFamily: bt.fonts.display }, tier === bt.level && styles.tierNameOn]}>{t(bt.nameKey)}</Text>
                 <Text style={styles.tierDesc}>{t(bt.descKey)}</Text>
               </Pressable>
             ))}

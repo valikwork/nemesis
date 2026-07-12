@@ -14,11 +14,13 @@ import { GloveSheet } from '../src/components/GloveSheet';
 import { GrimButton } from '../src/components/GrimButton';
 import { colors, radii, semantic, spacing } from '../src/theme/tokens';
 import { errMessage } from '../src/lib/err';
+import { useBrutality } from '../src/theme/brutality-context';
 
 type Gate = 'checking' | 'ask' | 'open';
 
 export default function Deck() {
   const { t, i18n } = useTranslation();
+  const { font } = useBrutality();
   const router = useRouter();
   const { session } = useSession();
   const myId = session?.user.id ?? '';
@@ -129,7 +131,7 @@ export default function Deck() {
 
   return (
     <View style={styles.root}>
-      <Text style={styles.title}>{t('deck.tab')}</Text>
+      <Text style={[styles.title, { fontFamily: font('display') }]}>{t('deck.tab')}</Text>
 
       {gate === 'ask' && (
         <View style={styles.gate}>
@@ -150,7 +152,7 @@ export default function Deck() {
         <>
           <View style={styles.card}>
             <Text style={styles.cardSigil}>{glyph(card.mask_avatar_id)}</Text>
-            <Text style={styles.cardName}>{card.nemesis_name}</Text>
+            <Text style={[styles.cardName, { fontFamily: font('display') }]}>{card.nemesis_name}</Text>
             {card.catchphrase != null && <Text style={styles.cardPhrase}>“{card.catchphrase}”</Text>}
             <Text style={styles.cardDistance}>{t('deck.distanceAway', { km: card.distance_km })}</Text>
             <ScrollView style={styles.ordealScroll} contentContainerStyle={styles.ordealList}>

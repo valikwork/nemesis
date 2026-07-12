@@ -50,6 +50,8 @@ Rules:
 - **Licenses:** Pickyside, Soulside Betrayed, Arathos, Maskdown are Fontspace downloads — often personal-use only; verify each before shipping. Bagel Fat One is Google Fonts (OFL) — safe.
 - Base body sans (T1–T2) still TBD.
 
+**Implementation (2026-07-12, Plan 6):** all five families ship — four Fontspace files in `assets/fonts/` (owner decision: license verification waived), Bagel Fat One via `@expo-google-fonts/bagel-fat-one` (OFL). Runtime-loaded via `useAppFonts()` (expo-font), registered under the exact keys in `brutality.ts`. **Cyrillic coverage verified: zero in all four Fontspace fonts** — UA text falls back to the system font per-glyph, which is the accepted per-language fallback map. Maskdown also lacks digits (numerals ride the body slot). Applied so far: logo + display + label slots (home logo/title, screen titles, feud header, deck card name, GrimButton labels, self-demonstrating BrutalityPicker rows). Tier state lives in `BrutalityProvider` (reads `profiles.brutality_tier`, flips live on settings save). NOT yet applied: body slot, roman numerals (T4), dividers/tilt/radii mutations — Plan 6 leftovers.
+
 ## 4. Per-tier mutation table (extendable)
 
 | Mutation | T1 | T2 | T3 | T4 | T5 |

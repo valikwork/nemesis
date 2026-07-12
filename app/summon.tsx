@@ -10,9 +10,11 @@ import { GrimButton } from '../src/components/GrimButton';
 import { GrimInput } from '../src/components/GrimInput';
 import { colors, radii, semantic, spacing } from '../src/theme/tokens';
 import { errMessage } from '../src/lib/err';
+import { useBrutality } from '../src/theme/brutality-context';
 
 export default function Summon() {
   const { t, i18n } = useTranslation();
+  const { font } = useBrutality();
   const router = useRouter();
   const { session } = useSession();
   const [ordeals, setOrdeals] = useState<OrdealRow[]>([]);
@@ -55,7 +57,7 @@ export default function Summon() {
 
   return (
     <View style={styles.root}>
-      <Text style={styles.title}>{t('summon.sheetTitle')}</Text>
+      <Text style={[styles.title, { fontFamily: font('display') }]}>{t('summon.sheetTitle')}</Text>
       <FlatList
         data={ordeals}
         keyExtractor={(o) => o.id}

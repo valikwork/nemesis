@@ -19,6 +19,7 @@ import { GrimInput } from '../../src/components/GrimInput';
 import { TauntForgeSheet } from '../../src/components/TauntForgeSheet';
 import { SafetySheet } from '../../src/components/SafetySheet';
 import { colors, radii, semantic, spacing } from '../../src/theme/tokens';
+import { useBrutality } from '../../src/theme/brutality-context';
 import { errMessage } from '../../src/lib/err';
 
 export default function FeudScreen() {
@@ -26,6 +27,7 @@ export default function FeudScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const { session } = useSession();
+  const { font } = useBrutality();
   const myId = session?.user.id ?? '';
 
   const [feud, setFeud] = useState<FeudRow | null>(null);
@@ -144,7 +146,7 @@ export default function FeudScreen() {
       <Pressable style={styles.safetyMenu} onPress={() => setSafetyOpen(true)}>
         <Text style={styles.safetyMenuText}>{t('safety.menu')}</Text>
       </Pressable>
-      <Text style={styles.header}>{opponentName}</Text>
+      <Text style={[styles.header, { fontFamily: font('display') }]}>{opponentName}</Text>
       {feud.is_arch && (
         <Text style={styles.archBadge}>
           ⚜ {t('arch.title')}{realName != null ? ` · ${realName}` : ''}

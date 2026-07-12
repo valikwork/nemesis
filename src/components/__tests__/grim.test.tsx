@@ -1,4 +1,7 @@
 import { render, fireEvent } from '@testing-library/react-native';
+// GrimButton → useBrutality → provider module pulls session/supabase; stub both
+jest.mock('../../lib/supabase', () => ({ supabase: {} }));
+jest.mock('../../auth/session', () => ({ useSession: () => ({ session: null, hasProfile: false }) }));
 import { GrimButton } from '../GrimButton';
 import { GrimInput } from '../GrimInput';
 

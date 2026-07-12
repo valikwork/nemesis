@@ -2,6 +2,8 @@ import { Stack, useRouter, useSegments, useGlobalSearchParams } from 'expo-route
 import { useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { semantic } from '../src/theme/tokens';
+import { useAppFonts } from '../src/theme/fonts';
+import { BrutalityProvider } from '../src/theme/brutality-context';
 import { SessionProvider, useSession } from '../src/auth/session';
 import { routeFor } from '../src/auth/route-for';
 import { supabase } from '../src/lib/supabase';
@@ -64,9 +66,14 @@ function Guard() {
 }
 
 export default function RootLayout() {
+  // Tier fonts load async; first frames fall back to system — acceptable,
+  // the guard's loading state covers most of that window anyway.
+  useAppFonts();
   return (
     <SessionProvider>
-      <Guard />
+      <BrutalityProvider>
+        <Guard />
+      </BrutalityProvider>
     </SessionProvider>
   );
 }
