@@ -52,7 +52,8 @@ maybe('block_user RPC', () => {
     });
     const { error: acceptErr } = await a.client.rpc('accept_invite', { p_code: invite.code });
     expect(acceptErr).not.toBeNull();
-    expect(acceptErr!.message).toContain('blocked');
+    // stealth block: blocked party sees a dead invite, not a block notice
+    expect(acceptErr!.message).toContain('invite_dead');
   });
 
   it('is idempotent and rejects self-block', async () => {

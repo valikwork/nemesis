@@ -82,16 +82,22 @@ maybe('invite lifecycle RPCs', () => {
     expect(error!.message).toContain('feud_exists');
   });
 
-  it('rejects blocked pairs', async () => {
+  it('rejects blocked pairs as invite_dead — stealth, indistinguishable from expiry', async () => {
     const a = await userWithProfile('blk-a', 'Block Anna');
     const b = await userWithProfile('blk-b', 'Block Bo');
     await admin().from('blocks').insert({ blocker: b.id, blocked: a.id });
     const { data: invite } = await a.client.rpc('create_invite', {
       p_ordeal_id: await anyOrdealId(), p_mode: 'endless', p_goal: null,
     });
+    const { error: getErr } = await b.client.rpc('get_invite', { p_code: invite.code });
+    expect(getErr).not.toBeNull();
+    expect(getErr!.message).toContain('invite_dead');
     const { error } = await b.client.rpc('accept_invite', { p_code: invite.code });
     expect(error).not.toBeNull();
-    expect(error!.message).toContain('blocked');
+    expect(error!.message).toContain('invite_dead');
+    // the invite itself stays pending for the blocker's own view
+    const { data: still } = await admin().from('invites').select('status').eq('id', invite.id).single();
+    expect(still!.status).toBe('pending');
   });
 
   it('expired invite: get_invite reports expired, accept rejects', async () => {
