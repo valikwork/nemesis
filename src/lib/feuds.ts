@@ -187,3 +187,23 @@ export async function myOrdeals(client: SupabaseClient, myId: string): Promise<O
   if (error) throw error;
   return (data ?? []).map((r: any) => r.ordeal as OrdealRow);
 }
+
+export async function blockUser(client: SupabaseClient, targetId: string): Promise<void> {
+  const { error } = await client.rpc('block_user', { p_target: targetId });
+  if (error) throw error;
+}
+
+export async function reportUser(
+  client: SupabaseClient,
+  args: { targetId: string; feudId?: string; reason: string },
+): Promise<void> {
+  const { data: userData, error: ue } = await client.auth.getUser();
+  if (ue || userData.user == null) throw new Error('auth_required');
+  const { error } = await client.from('reports').insert({
+    reporter: userData.user.id,
+    target: args.targetId,
+    feud_id: args.feudId ?? null,
+    reason: args.reason.trim(),
+  });
+  if (error) throw error;
+}

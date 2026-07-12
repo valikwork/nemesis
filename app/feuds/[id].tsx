@@ -16,6 +16,7 @@ import { TowerRace } from '../../src/components/TowerRace';
 import { GrimButton } from '../../src/components/GrimButton';
 import { GrimInput } from '../../src/components/GrimInput';
 import { TauntForgeSheet } from '../../src/components/TauntForgeSheet';
+import { SafetySheet } from '../../src/components/SafetySheet';
 import { colors, radii, semantic, spacing } from '../../src/theme/tokens';
 import { errMessage } from '../../src/lib/err';
 
@@ -37,6 +38,7 @@ export default function FeudScreen() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [forgeOpen, setForgeOpen] = useState(false);
+  const [safetyOpen, setSafetyOpen] = useState(false);
   const [taunts, setTaunts] = useState<TauntRow[]>([]);
   const [tauntKits, setTauntKits] = useState<Map<string, { template: TauntTemplate; banks: TauntBankWord[] }>>(new Map());
 
@@ -125,6 +127,9 @@ export default function FeudScreen() {
 
   return (
     <View style={styles.root}>
+      <Pressable style={styles.safetyMenu} onPress={() => setSafetyOpen(true)}>
+        <Text style={styles.safetyMenuText}>{t('safety.menu')}</Text>
+      </Pressable>
       <Text style={styles.header}>{opponentName}</Text>
       <Text style={styles.subheader}>{ordealLabel(ordeal, i18n.language)}</Text>
       {ended && (
@@ -218,12 +223,23 @@ export default function FeudScreen() {
         onClose={() => setForgeOpen(false)}
         onSent={() => { notifyOpponent(supabase, 'taunt', feud.id); load(); }}
       />
+
+      <SafetySheet
+        visible={safetyOpen}
+        targetId={opponentId}
+        targetName={opponentName}
+        feudId={feud.id}
+        onClose={() => setSafetyOpen(false)}
+        onBlocked={() => router.replace('/')}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: semantic.bg, padding: spacing[4], paddingTop: spacing[5] * 2, gap: spacing[1] },
+  safetyMenu: { position: 'absolute', top: spacing[5] * 1.5, right: spacing[4] },
+  safetyMenuText: { color: colors.smoke, fontSize: 22 },
   header: { color: colors.bone, fontSize: 22, textAlign: 'center', letterSpacing: 1 },
   subheader: { color: colors.smoke, fontSize: 13, textAlign: 'center' },
   verdict: { alignItems: 'center', marginVertical: spacing[1] },
