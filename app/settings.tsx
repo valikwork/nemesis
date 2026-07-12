@@ -68,12 +68,20 @@ export default function Settings() {
 
   async function erase() {
     setBusy(true);
+    setError(null);
     try {
-      await supabase.functions.invoke('delete-account');
-    } catch {
-      // even on failure fall through to sign-out; dead-session healing covers stragglers
+      // invoke() reports failures via the error field, it does not throw --
+      // an erase that didn't happen must surface, never fake success by
+      // signing out anyway (review finding, 2026-07-12).
+      const { data, error: fe } = await supabase.functions.invoke('delete-account');
+      if (fe != null || data?.erased !== true) {
+        setError(fe != null ? errMessage(fe) : 'erase_failed');
+        return;
+      }
+      await supabase.auth.signOut();
+    } finally {
+      setBusy(false);
     }
-    await supabase.auth.signOut();
   }
 
   const lang = i18n.language === 'uk' ? 'uk' : 'en';
@@ -128,6 +136,7 @@ export default function Settings() {
           <View style={styles.modal}>
             <Text style={styles.title}>{t('settings.deleteAccount')}</Text>
             <Text style={styles.eraseBody}>{t('settings.eraseBody')}</Text>
+            {error != null && <Text style={styles.error}>{error}</Text>}
             <GrimButton label={t('settings.deleteAccount')} onPress={erase} disabled={busy} />
             <GrimButton label={t('common.cancel')} variant="ghost" onPress={() => setEraseOpen(false)} />
           </View>
