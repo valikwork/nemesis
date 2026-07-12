@@ -19,13 +19,13 @@ interface Props {
 export function GloveSheet({ visible, sharedOrdeals, busy, error, onThrow, onClose }: Props) {
   const { t, i18n } = useTranslation();
   const [ordealId, setOrdealId] = useState<string | null>(null);
-  const [showdown, setShowdown] = useState(false);
+  const [showdown, setShowdown] = useState(true); // showdown is the default mode (owner, 5b walk)
   const [goal, setGoal] = useState('');
 
   useEffect(() => {
     if (visible) {
       setOrdealId(sharedOrdeals[0]?.id ?? null);
-      setShowdown(false);
+      setShowdown(true);
       setGoal('');
     }
   }, [visible]);

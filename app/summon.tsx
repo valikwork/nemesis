@@ -17,7 +17,7 @@ export default function Summon() {
   const { session } = useSession();
   const [ordeals, setOrdeals] = useState<OrdealRow[]>([]);
   const [ordealId, setOrdealId] = useState<string | null>(null);
-  const [showdown, setShowdown] = useState(false);
+  const [showdown, setShowdown] = useState(true); // showdown is the default mode (owner, 5b walk)
   const [goal, setGoal] = useState('');
   const [pending, setPending] = useState<PendingInvite[]>([]);
   const [error, setError] = useState<string | null>(null);
