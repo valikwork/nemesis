@@ -146,6 +146,14 @@
 
 More templates added over time; each language's banks are authored independently. Rule: closed vocabulary only, no free-text slots, agreement must hold for every combination.
 
+### 5b. Plan-4 additions (taunt UI)
+
+| Key | EN | UA (draft) |
+| --- | --- | --- |
+| forge_cta | Send a taunt | Надіслати образу |
+| forge_missives | Missives | Послання |
+| forge_preview | Thy missive | Твоє послання |
+
 ## 6. Arch-Nemesis
 
 | Key                   | EN                                                                      | UA (draft)                                                                     |

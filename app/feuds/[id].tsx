@@ -7,10 +7,15 @@ import { supabase } from '../../src/lib/supabase';
 import { useSession } from '../../src/auth/session';
 import { listScores, logScore, type FeudRow, type ScoreEntry } from '../../src/lib/feuds';
 import { notifyOpponent } from '../../src/lib/push';
+import {
+  listTaunts, assembleTaunt, fetchTemplateWithBanks,
+  type TauntRow, type TauntTemplate, type TauntBankWord,
+} from '../../src/lib/taunts';
 import { ordealLabel, ordealUnit, type OrdealRow } from '../../src/onboarding/ordeal-labels';
 import { TowerRace } from '../../src/components/TowerRace';
 import { GrimButton } from '../../src/components/GrimButton';
 import { GrimInput } from '../../src/components/GrimInput';
+import { TauntForgeSheet } from '../../src/components/TauntForgeSheet';
 import { colors, radii, semantic, spacing } from '../../src/theme/tokens';
 
 export default function FeudScreen() {
@@ -30,6 +35,9 @@ export default function FeudScreen() {
   const [proofUri, setProofUri] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [forgeOpen, setForgeOpen] = useState(false);
+  const [taunts, setTaunts] = useState<TauntRow[]>([]);
+  const [tauntKits, setTauntKits] = useState<Map<string, { template: TauntTemplate; banks: TauntBankWord[] }>>(new Map());
 
   const load = useCallback(async () => {
     if (id == null || myId === '') return;
@@ -37,14 +45,25 @@ export default function FeudScreen() {
     if (f == null) { router.replace('/'); return; }
     setFeud(f as FeudRow);
     const opponentId = f.profile_a === myId ? f.profile_b : f.profile_a;
-    const [{ data: o }, { data: p }, scores] = await Promise.all([
+    const [{ data: o }, { data: p }, scores, tauntRows] = await Promise.all([
       supabase.from('ordeals').select('*').eq('id', f.ordeal_id).single(),
       supabase.from('profiles').select('nemesis_name').eq('id', opponentId).maybeSingle(),
       listScores(supabase, id),
+      listTaunts(supabase, id),
     ]);
     setOrdeal(o as OrdealRow);
     setOpponentName(p?.nemesis_name ?? '???');
     setEntries(scores);
+    setTaunts(tauntRows);
+    setTauntKits((prev) => {
+      const missing = tauntRows.filter((tr) => !prev.has(tr.template_id));
+      if (missing.length === 0) return prev;
+      const next = new Map(prev);
+      Promise.all(
+        missing.map((tr) => fetchTemplateWithBanks(supabase, tr.template_id).then((kit) => { next.set(tr.template_id, kit); })),
+      ).then(() => setTauntKits(new Map(next)));
+      return prev;
+    });
   }, [id, myId]);
 
   useEffect(() => { load(); }, [load]);
@@ -55,6 +74,7 @@ export default function FeudScreen() {
       .channel(`feud:${id}`)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'score_entries', filter: `feud_id=eq.${id}` }, () => load())
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'feuds', filter: `id=eq.${id}` }, () => load())
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'taunts', filter: `feud_id=eq.${id}` }, () => load())
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [id, load]);
@@ -127,6 +147,26 @@ export default function FeudScreen() {
         unit={unit}
       />
       {!ended && <GrimButton label={t('feud.logDeed')} onPress={() => setLogOpen(true)} />}
+      {!ended && <GrimButton label={t('forge.cta')} variant="ghost" onPress={() => setForgeOpen(true)} />}
+      {taunts.length > 0 && (
+        <>
+          <Text style={styles.chronicleTitle}>{t('forge.missives')}</Text>
+          <View style={styles.missives}>
+            {taunts.slice(0, 5).map((tr) => {
+              const kit = tauntKits.get(tr.template_id);
+              const mine = tr.author === myId;
+              return (
+                <Text
+                  key={tr.id}
+                  style={[styles.missive, mine ? styles.missiveMine : styles.missiveTheirs]}
+                >
+                  {kit != null ? assembleTaunt(kit.template, kit.banks, tr.picks) : '…'}
+                </Text>
+              );
+            })}
+          </View>
+        </>
+      )}
       <Text style={styles.chronicleTitle}>{t('feud.chronicle')}</Text>
       <FlatList
         data={[...entries].reverse()}
@@ -170,6 +210,13 @@ export default function FeudScreen() {
           </View>
         </View>
       </Modal>
+
+      <TauntForgeSheet
+        feudId={feud.id}
+        visible={forgeOpen}
+        onClose={() => setForgeOpen(false)}
+        onSent={() => { notifyOpponent(supabase, 'taunt', feud.id); load(); }}
+      />
     </View>
   );
 }
@@ -184,6 +231,10 @@ const styles = StyleSheet.create({
   lost: { color: colors.smoke },
   rumorRatio: { color: colors.venomDeep, fontSize: 12, marginTop: 2 },
   chronicleTitle: { color: colors.smoke, fontSize: 12, letterSpacing: 2, textTransform: 'uppercase', marginTop: spacing[2] },
+  missives: { gap: spacing[0] },
+  missive: { fontSize: 12, fontStyle: 'italic' },
+  missiveMine: { color: colors.blood, textAlign: 'right' },
+  missiveTheirs: { color: colors.venomDeep, textAlign: 'left' },
   chronicle: { gap: spacing[1] },
   entry: {
     backgroundColor: colors.crypt, borderWidth: 1, borderColor: colors.venomDim,

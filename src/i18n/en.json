@@ -114,7 +114,10 @@
     "subtitle": "Compose thy insult",
     "send": "Send message",
     "spent": "Thy venom is spent. Return at dawn.",
-    "received": "A message from thy nemesis."
+    "received": "A message from thy nemesis.",
+    "cta": "Send a taunt",
+    "missives": "Missives",
+    "preview": "Thy missive"
   },
   "arch": {
     "confirmTitle": "There can be only one.",

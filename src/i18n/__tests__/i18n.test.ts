@@ -61,4 +61,11 @@ describe('i18n catalogs', () => {
       expect(typeof resolveIn(uk)).toBe('string');
     }
   });
+  it('plan-4 keys present', () => {
+    for (const key of ['forge.cta', 'forge.missives', 'forge.preview']) {
+      const resolveIn = (cat: object) => key.split('.').reduce((o: any, k) => o?.[k], cat);
+      expect(typeof resolveIn(en)).toBe('string');
+      expect(typeof resolveIn(uk)).toBe('string');
+    }
+  });
 });
