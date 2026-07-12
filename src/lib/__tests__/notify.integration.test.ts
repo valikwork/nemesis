@@ -52,4 +52,51 @@ maybe('notify edge function', () => {
     const anonResp = await call(null);
     expect(anonResp.status).toBe(401);
   });
+
+  it('profile-scoped kinds verify the relationship: deck_match needs mutual like, declare needs pending declare', async () => {
+    const a = admin();
+    const mk = async (n: string) => {
+      const email = `nf2-${n}-${Date.now()}@test.local`;
+      const { data } = await a.auth.admin.createUser({ email, password: 'pass1234!', email_confirm: true });
+      await a.from('profiles').insert({ id: data.user!.id, nemesis_name: `Notify2 ${n}` });
+      const c = createClient(url, anon);
+      await c.auth.signInWithPassword({ email, password: 'pass1234!' });
+      const { data: s } = await c.auth.getSession();
+      return { id: data.user!.id, jwt: s.session!.access_token };
+    };
+    const ua = await mk('a');
+    const ub = await mk('b');
+
+    const call = (jwt: string, body: object) =>
+      fetch(`${fnUrl}/notify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${jwt}` },
+        body: JSON.stringify(body),
+      });
+
+    // no relationship yet → 403 for both kinds
+    let resp = await call(ua.jwt, { kind: 'deck_match', target_profile_id: ub.id });
+    expect(resp.status).toBe(403);
+    resp = await call(ua.jwt, { kind: 'declare', target_profile_id: ub.id });
+    expect(resp.status).toBe(403);
+
+    // mutual like → deck_match ok (skipped: no push token)
+    await a.from('swipes').insert([
+      { swiper: ua.id, target: ub.id, liked: true },
+      { swiper: ub.id, target: ua.id, liked: true },
+    ]);
+    resp = await call(ua.jwt, { kind: 'deck_match', target_profile_id: ub.id });
+    expect(resp.status).toBe(200);
+    expect(await resp.json()).toEqual({ skipped: true });
+
+    // pending declare → declare ok
+    await a.from('declares').insert({ declarer: ua.id, target: ub.id });
+    resp = await call(ua.jwt, { kind: 'declare', target_profile_id: ub.id });
+    expect(resp.status).toBe(200);
+    expect(await resp.json()).toEqual({ skipped: true });
+
+    // feud-scoped kind without feud_id → 400
+    resp = await call(ua.jwt, { kind: 'taunt', target_profile_id: ub.id });
+    expect(resp.status).toBe(400);
+  });
 });

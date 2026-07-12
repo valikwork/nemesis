@@ -5,19 +5,31 @@ const MESSAGES: Record<string, Record<string, string>> = {
     match: 'A nemesis has answered thy challenge.',
     taunt: '{name} sends taunt.',
     score: "{name}'s tower grows.",
+    deck_match: 'A nemesis has answered thy challenge.',
+    declare: 'Thou hast been named an arch-nemesis.',
   },
   uk: {
     match: 'Ворог відповів на твій виклик.',
     taunt: '{name} шле образ.',
     score: 'Вежа {name} росте.',
+    deck_match: 'Ворог відповів на твій виклик.',
+    declare: 'Тебе титулували архіворогом.',
   },
 };
+
+const FEUD_KINDS = ['match', 'taunt', 'score'];
+const TARGET_KINDS = ['deck_match', 'declare'];
 
 Deno.serve(async (req) => {
   try {
     const auth = req.headers.get('Authorization') ?? '';
-    const { kind, feud_id } = await req.json();
-    if (!['match', 'taunt', 'score'].includes(kind) || typeof feud_id !== 'string') {
+    const { kind, feud_id, target_profile_id } = await req.json();
+    const feudScoped = FEUD_KINDS.includes(kind);
+    if (
+      (!feudScoped && !TARGET_KINDS.includes(kind)) ||
+      (feudScoped && typeof feud_id !== 'string') ||
+      (!feudScoped && typeof target_profile_id !== 'string')
+    ) {
       return Response.json({ error: 'bad_request' }, { status: 400 });
     }
 
@@ -34,11 +46,30 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     );
-    const { data: feud } = await service.from('feuds').select('profile_a, profile_b').eq('id', feud_id).maybeSingle();
-    if (feud == null || (feud.profile_a !== uid && feud.profile_b !== uid)) {
-      return Response.json({ error: 'not_member' }, { status: 403 });
+    let opponentId: string;
+    if (feudScoped) {
+      const { data: feud } = await service.from('feuds').select('profile_a, profile_b').eq('id', feud_id).maybeSingle();
+      if (feud == null || (feud.profile_a !== uid && feud.profile_b !== uid)) {
+        return Response.json({ error: 'not_member' }, { status: 403 });
+      }
+      opponentId = feud.profile_a === uid ? feud.profile_b : feud.profile_a;
+    } else {
+      // profile-scoped kinds: the claimed relationship must exist in the DB
+      if (kind === 'deck_match') {
+        const [mine, theirs] = await Promise.all([
+          service.from('swipes').select('liked').eq('swiper', uid).eq('target', target_profile_id).maybeSingle(),
+          service.from('swipes').select('liked').eq('swiper', target_profile_id).eq('target', uid).maybeSingle(),
+        ]);
+        if (mine.data?.liked !== true || theirs.data?.liked !== true) {
+          return Response.json({ error: 'not_member' }, { status: 403 });
+        }
+      } else {
+        const { data: declare } = await service.from('declares').select('id')
+          .eq('declarer', uid).eq('target', target_profile_id).eq('status', 'pending').maybeSingle();
+        if (declare == null) return Response.json({ error: 'not_member' }, { status: 403 });
+      }
+      opponentId = target_profile_id;
     }
-    const opponentId = feud.profile_a === uid ? feud.profile_b : feud.profile_a;
     const [{ data: opponent }, { data: me }] = await Promise.all([
       service.from('profiles').select('expo_push_token, language').eq('id', opponentId).maybeSingle(),
       service.from('profiles').select('nemesis_name').eq('id', uid).maybeSingle(),

@@ -28,6 +28,7 @@ export interface FeudRow {
   goal_value: number | null;
   status: 'proposed' | 'active' | 'ended' | 'dissolved';
   is_arch: boolean;
+  proposed_by: string | null;
   winner: string | null;
   created_at: string;
   ended_at: string | null;
