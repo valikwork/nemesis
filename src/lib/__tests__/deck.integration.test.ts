@@ -49,13 +49,13 @@ async function assign(profileId: string, ordealId: string, hint?: string) {
 }
 
 maybe('get_deck + swipe_rival', () => {
-  it('returns a nearby rival with distance and shared ordeals, never location', async () => {
+  it('returns a nearby rival with distance and all ordeals shared-first, never location', async () => {
     const [o1, o2] = await catalogOrdeals(2);
     const me = await locatedUser('dk-a', 'Deck Anna');
     const rival = await locatedUser('dk-b', 'Deck Bo', { lonOff: 0.014 });
     await assign(me.id, o1);
+    await assign(rival.id, o2); // not shared — listed after the shared ones
     await assign(rival.id, o1, '1450 elo');
-    await assign(rival.id, o2); // not shared — must not appear
 
     const { data, error } = await me.client.rpc('get_deck', {});
     expect(error).toBeNull();
@@ -65,9 +65,12 @@ maybe('get_deck + swipe_rival', () => {
     expect(card.distance_km).toBeGreaterThan(0.5);
     expect(card.distance_km).toBeLessThan(1.5);
     expect(card.location).toBeUndefined();
-    expect(card.shared_ordeals).toHaveLength(1);
-    expect(card.shared_ordeals[0].id).toBe(o1);
-    expect(card.shared_ordeals[0].skill_hint).toBe('1450 elo');
+    expect(card.ordeals).toHaveLength(2);
+    expect(card.ordeals[0].id).toBe(o1); // shared first
+    expect(card.ordeals[0].shared).toBe(true);
+    expect(card.ordeals[0].skill_hint).toBe('1450 elo');
+    expect(card.ordeals[1].id).toBe(o2);
+    expect(card.ordeals[1].shared).toBe(false);
   });
 
   it('requires location', async () => {
@@ -120,6 +123,43 @@ maybe('get_deck + swipe_rival', () => {
     const dup = await a.client.rpc('swipe_rival', { p_target: b.id, p_liked: false });
     expect(dup.error).not.toBeNull();
     expect(dup.error!.message).toContain('already_swiped');
+  });
+
+  it('my_matches surfaces the mutual like to BOTH parties until a feud exists', async () => {
+    const [o1] = await catalogOrdeals(1);
+    const a = await locatedUser('mm-a', 'Match Anna');
+    const b = await locatedUser('mm-b', 'Match Bo', { lonOff: 0.01 });
+    await assign(a.id, o1);
+    await assign(b.id, o1);
+
+    await a.client.rpc('swipe_rival', { p_target: b.id, p_liked: true });
+    // one-sided: no match for anyone
+    const half = await a.client.rpc('my_matches', {});
+    expect((half.data as any[]).find((m) => m.id === b.id)).toBeUndefined();
+
+    await b.client.rpc('swipe_rival', { p_target: a.id, p_liked: true });
+    // both sides now see it — the first swiper too (walk finding)
+    for (const [who, otherId, otherName] of [[a, b.id, 'Match Bo'], [b, a.id, 'Match Anna']] as const) {
+      const { data, error } = await who.client.rpc('my_matches', {});
+      expect(error).toBeNull();
+      const m = (data as any[]).find((x) => x.id === otherId);
+      expect(m).toBeDefined();
+      expect(m.nemesis_name).toBe(otherName);
+      expect(m.shared_ordeals).toHaveLength(1);
+    }
+
+    // a proposed feud removes the match from both lists…
+    const { data: feudId } = await a.client.rpc('propose_feud', {
+      p_target: b.id, p_ordeal_id: o1, p_mode: 'endless', p_goal: null,
+    });
+    const gone = await b.client.rpc('my_matches', {});
+    expect((gone.data as any[]).find((m) => m.id === a.id)).toBeUndefined();
+
+    // …and BOTH parties can read each other's persona on the proposed feud
+    // (profiles_feud_partner now covers 'proposed' — walk finding: home was empty)
+    const { data: prof } = await b.client.from('profiles').select('nemesis_name').eq('id', a.id).maybeSingle();
+    expect(prof?.nemesis_name).toBe('Match Anna');
+    await admin().from('feuds').delete().eq('id', feudId);
   });
 
   it('propose_feud needs a mutual like; respond_feud activates or dissolves', async () => {

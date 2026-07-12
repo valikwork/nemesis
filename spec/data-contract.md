@@ -312,3 +312,8 @@ Deep linking: `nemesis://feud/{code}` + universal/app links on both platforms; s
 - **`unmask-photos` bucket** (contract §6): private; path `{profile_id}/{filename}`; owner-only insert; SELECT for owner or active-unmasked-arch partner (mirrors `unmask_pact`).
 - **`profiles_declare_party` policy (migration 0015, Plan 5b-2):** parties of a pending/accepted declare can read each other's persona rows — the declare banner needs the declarer's name/sigil before any feud connects the pair. Mirrors `profiles_feud_partner`.
 - **Location opt-in (client rule):** onboarding never asks for location; the deck screen requests foreground permission on first open, stores one coarse fix (`Accuracy.Low`, ~1 km) plus `radius_km` default 25. Position is never rendered anywhere — only `get_deck`'s rounded `distance_km`.
+
+**Amendment 2026-07-12 (owner walk findings, 5b — migration 0016):**
+- `profiles_feud_partner` now covers `'proposed'` — gauntlets on home need the counterpart's persona before acceptance (was: proposed feuds invisible, home looked empty after a glove).
+- `get_deck` cards return the rival's **whole** approved ordeal list as `ordeals` (each with `shared` flag + `skill_hint`), shared ones first — replaces the shared-only `shared_ordeals` key.
+- `my_matches() returns setof jsonb` — mutual likes with no block and no live/proposed feud, persona + `shared_ordeals`; gives the FIRST swiper match visibility (only the second swiper gets `matched=true` from `swipe_rival`; push is best-effort). Home renders these as match banners with a throw-glove CTA.

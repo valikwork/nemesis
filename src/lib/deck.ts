@@ -3,6 +3,7 @@ import type { OrdealRow } from '../onboarding/ordeal-labels';
 
 export interface DeckOrdeal extends OrdealRow {
   skill_hint: string | null;
+  shared: boolean;
 }
 
 export interface DeckCard {
@@ -12,7 +13,15 @@ export interface DeckCard {
   bio: string | null;
   mask_avatar_id: string;
   distance_km: number;
-  shared_ordeals: DeckOrdeal[];
+  ordeals: DeckOrdeal[]; // shared first (get_deck orders them)
+}
+
+export interface MatchCard {
+  id: string;
+  nemesis_name: string;
+  catchphrase: string | null;
+  mask_avatar_id: string;
+  shared_ordeals: OrdealRow[];
 }
 
 export interface DeclareRow {
@@ -29,6 +38,13 @@ export async function getDeck(client: SupabaseClient, maxCards = 20): Promise<De
   const { data, error } = await client.rpc('get_deck', { max_cards: maxCards });
   if (error) throw error;
   return (data ?? []) as DeckCard[];
+}
+
+/** Mutual likes with no live/proposed feud yet — visible to both swipers. */
+export async function myMatches(client: SupabaseClient): Promise<MatchCard[]> {
+  const { data, error } = await client.rpc('my_matches', {});
+  if (error) throw error;
+  return (data ?? []) as MatchCard[];
 }
 
 export async function swipeRival(

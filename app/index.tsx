@@ -5,9 +5,11 @@ import { useTranslation } from 'react-i18next';
 import { supabase } from '../src/lib/supabase';
 import { useSession } from '../src/auth/session';
 import { listFeudsWithMeta, type FeudWithMeta } from '../src/lib/feuds';
-import { respondFeud, resolveDeclare, myDeclares, type DeclareRow } from '../src/lib/deck';
+import { respondFeud, resolveDeclare, myDeclares, myMatches, proposeFeud, type DeclareRow, type MatchCard } from '../src/lib/deck';
 import { notifyOpponent } from '../src/lib/push';
+import { SIGILS } from '../src/onboarding/sigils';
 import { FeudRowCard } from '../src/components/FeudRowCard';
+import { GloveSheet } from '../src/components/GloveSheet';
 import { GrimButton } from '../src/components/GrimButton';
 import { colors, radii, semantic, spacing } from '../src/theme/tokens';
 import { errMessage } from '../src/lib/err';
@@ -22,18 +24,23 @@ export default function Home() {
   const router = useRouter();
   const [feuds, setFeuds] = useState<FeudWithMeta[]>([]);
   const [declares, setDeclares] = useState<DeclareBanner[]>([]);
+  const [matches, setMatches] = useState<MatchCard[]>([]);
+  const [gloveFor, setGloveFor] = useState<MatchCard | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (session == null) return;
     setRefreshing(true);
     try {
-      const [feudRows, declareRows] = await Promise.all([
+      const [feudRows, declareRows, matchRows] = await Promise.all([
         listFeudsWithMeta(supabase, session.user.id),
         myDeclares(supabase),
+        myMatches(supabase),
       ]);
       setFeuds(feudRows);
+      setMatches(matchRows);
       const incoming = declareRows.filter((d) => d.status === 'pending' && d.target === session.user.id);
       const names = new Map<string, string>();
       if (incoming.length > 0) {
@@ -66,6 +73,21 @@ export default function Home() {
       await load();
     } catch (e) {
       setError(errMessage(e));
+    }
+  }
+
+  async function throwGlove(args: { ordealId: string; mode: 'endless' | 'showdown'; goal: number | null }) {
+    if (gloveFor == null) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await proposeFeud(supabase, { targetId: gloveFor.id, ...args });
+      setGloveFor(null);
+      await load();
+    } catch (e) {
+      setError(errMessage(e));
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -110,6 +132,18 @@ export default function Home() {
                 </View>
               </View>
             ))}
+            {matches.map((m) => (
+              <View key={m.id} style={styles.banner}>
+                <Text style={styles.bannerText}>
+                  {SIGILS.find((s) => s.id === m.mask_avatar_id)?.glyph ?? '✠'} {m.nemesis_name} · {t('deck.matchTitle')}
+                </Text>
+                <View style={styles.bannerRow}>
+                  <Pressable onPress={() => setGloveFor(m)}>
+                    <Text style={styles.bannerAccept}>{t('deck.matchCta')}</Text>
+                  </Pressable>
+                </View>
+              </View>
+            ))}
             {proposed.length > 0 && (
               <View style={styles.sectionWrap}>
                 <Text style={styles.sectionTitle}>{t('home.gauntletTitle')}</Text>
@@ -140,7 +174,7 @@ export default function Home() {
           </>
         }
         ListEmptyComponent={
-          proposed.length === 0 && declares.length === 0
+          proposed.length === 0 && declares.length === 0 && matches.length === 0
             ? <Text style={styles.empty}>{t('home.empty')}</Text>
             : null
         }
@@ -157,6 +191,15 @@ export default function Home() {
       />
       <GrimButton label={t('deck.tab')} variant="ghost" onPress={() => router.push('/deck')} />
       <GrimButton label={t('home.summonCta')} onPress={() => router.push('/summon')} />
+
+      <GloveSheet
+        visible={gloveFor != null}
+        sharedOrdeals={gloveFor?.shared_ordeals ?? []}
+        busy={busy}
+        error={error}
+        onThrow={throwGlove}
+        onClose={() => setGloveFor(null)}
+      />
     </View>
   );
 }
