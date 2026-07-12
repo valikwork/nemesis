@@ -147,7 +147,23 @@
     "report": "Report",
     "block": "Banish",
     "ordealRejected": "This ordeal displeases the elders.",
-    "coexist": "Coexist? NO!"
+    "coexist": "Coexist? NO!",
+    "title": "The inner sanctum",
+    "signOut": "Leave the gate",
+    "language": "Tongue",
+    "persona": "Thy persona",
+    "save": "Carve it",
+    "saved": "Carved.",
+    "dangerZone": "Point of no return",
+    "eraseBody": "Thy chronicle, feuds, and name shall be wiped from all records. Forever."
+  },
+  "safety": {
+    "menu": "⋯",
+    "blockConfirmTitle": "Banish {{name}}?",
+    "blockConfirmBody": "All feuds with them dissolve. They will not find thee again.",
+    "reportTitle": "Report to the elders",
+    "reportPlaceholder": "What have they done?",
+    "reportSent": "The elders have been informed."
   },
   "push": {
     "match": "A nemesis has answered thy challenge.",

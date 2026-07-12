@@ -189,6 +189,27 @@ More templates added over time; each language's banks are authored independently
 
 Placement of `coexist_joke`: onboarding final step or About screen — decide at implementation.
 
+### 7b. Plan-5a additions (settings screen + safety sheets)
+
+| Key | EN | UA (draft) |
+| --- | --- | --- |
+| settings_title | The inner sanctum | Внутрішнє святилище |
+| settings_sign_out | Leave the gate | Полишити браму |
+| settings_language | Tongue | Мова |
+| settings_persona | Thy persona | Твоя подоба |
+| settings_save | Carve it | Закарбувати |
+| settings_saved | Carved. | Закарбовано. |
+| settings_danger_zone | Point of no return | Точка неповернення |
+| settings_erase_body | Thy chronicle, feuds, and name shall be wiped from all records. Forever. | Твій літопис, ворожнечі та ім'я буде стерто з усіх записів. Назавжди. |
+| safety_menu | ⋯ | ⋯ |
+| safety_block_confirm_title | Banish {name}? | Вигнати {name}? |
+| safety_block_confirm_body | All feuds with them dissolve. They will not find thee again. | Усі ворожнечі з ним розчиняться. Він більше тебе не знайде. |
+| safety_report_title | Report to the elders | Поскаржитися старійшинам |
+| safety_report_placeholder | What have they done? | Що він накоїв? |
+| safety_report_sent | The elders have been informed. | Старійшин повідомлено. |
+
+(`settings_erase_body` reuses §7 `delete_confirm` text verbatim — keyed for the new screen. Existing §7 keys reused: brutality_*, delete_account, report_cta, block_cta.)
+
 ## 8. Push notifications
 
 | Key            | EN                                    | UA (draft)                       |

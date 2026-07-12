@@ -68,4 +68,16 @@ describe('i18n catalogs', () => {
       expect(typeof resolveIn(uk)).toBe('string');
     }
   });
+  it('plan-5a keys present', () => {
+    for (const key of [
+      'settings.title', 'settings.signOut', 'settings.language', 'settings.persona',
+      'settings.save', 'settings.saved', 'settings.dangerZone', 'settings.eraseBody',
+      'safety.blockConfirmTitle', 'safety.blockConfirmBody', 'safety.reportTitle',
+      'safety.reportPlaceholder', 'safety.reportSent', 'safety.menu',
+    ]) {
+      const resolveIn = (cat: object) => key.split('.').reduce((o: any, k) => o?.[k], cat);
+      expect(typeof resolveIn(en)).toBe('string');
+      expect(typeof resolveIn(uk)).toBe('string');
+    }
+  });
 });
