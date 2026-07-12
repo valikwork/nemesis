@@ -40,7 +40,7 @@
 | common_cancel | Back | Назад |
 | validation_too_short | Too short for legend. | Закоротко для легенди. |
 | validation_too_long | Even sagas have limits. | Навіть саги мають межі. |
-| auth_enter | Enter | Увійти |
+| auth_enter | Return | Повернутися |
 | auth_rise | Rise | Повстати |
 | auth_to_sign_up | No account? Rise anew | Немає облікового запису? Повстань |
 | auth_to_sign_in | Return to the gate | Повернутися до брами |
