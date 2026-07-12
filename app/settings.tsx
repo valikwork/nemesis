@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../src/lib/supabase';
 import { useSession } from '../src/auth/session';
 import { setAppLanguage } from '../src/i18n';
-import { brutalityTiers } from '../src/theme/brutality';
+import { brutalityTiers, tierFor } from '../src/theme/brutality';
 import { validateCatchphrase, validateBio } from '../src/lib/validation';
 import { errMessage } from '../src/lib/err';
 import { GrimButton } from '../src/components/GrimButton';
@@ -23,8 +23,10 @@ export default function Settings() {
   const [tier, setTier] = useState(1);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [tierOpen, setTierOpen] = useState(false);
   const [eraseOpen, setEraseOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const savedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (uid == null) return;
@@ -35,13 +37,21 @@ export default function Settings() {
         setBio(data.bio ?? '');
         setTier(data.brutality_tier ?? 1);
       });
+    return () => {
+      if (savedTimer.current != null) clearTimeout(savedTimer.current);
+    };
   }, [uid]);
+
+  function flashSaved() {
+    setSaved(true);
+    if (savedTimer.current != null) clearTimeout(savedTimer.current);
+    savedTimer.current = setTimeout(() => setSaved(false), 2500);
+  }
 
   async function save() {
     if (uid == null) return;
     setBusy(true);
     setError(null);
-    setSaved(false);
     try {
       const { error: e } = await supabase.from('profiles').update({
         catchphrase: catchphrase.trim() || null,
@@ -49,7 +59,7 @@ export default function Settings() {
         brutality_tier: tier,
       }).eq('id', uid);
       if (e) throw e;
-      setSaved(true);
+      flashSaved();
     } catch (e) {
       setError(errMessage(e));
     } finally {
@@ -85,51 +95,73 @@ export default function Settings() {
   }
 
   const lang = i18n.language === 'uk' ? 'uk' : 'en';
+  const currentTier = tierFor(tier);
 
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.root}>
-      <Text style={styles.title}>{t('settings.title')}</Text>
+    <View style={styles.screen}>
+      <Pressable accessibilityRole="button" style={styles.backArrow} onPress={() => router.back()}>
+        <Text style={styles.backArrowText}>←</Text>
+      </Pressable>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.root}>
+        <Text style={styles.title}>{t('settings.title')}</Text>
 
-      <Text style={styles.section}>{t('settings.persona')}</Text>
-      <Text style={styles.fieldLabel}>{t('onboarding.catchphraseTitle')}</Text>
-      <GrimInput value={catchphrase} onChangeText={setCatchphrase}
-        placeholder={t('onboarding.catchphrasePlaceholder')}
-        error={validateCatchphrase(catchphrase) ? t(`validation.${validateCatchphrase(catchphrase)}`) : null} />
-      <Text style={styles.fieldLabel}>{t('onboarding.bioTitle')}</Text>
-      <GrimInput value={bio} onChangeText={setBio} multiline numberOfLines={4} style={styles.bioInput}
-        placeholder="…"
-        error={validateBio(bio) ? t(`validation.${validateBio(bio)}`) : null} />
+        <Text style={styles.section}>{t('settings.persona')}</Text>
+        <Text style={styles.fieldLabel}>{t('onboarding.catchphraseTitle')}</Text>
+        <GrimInput value={catchphrase} onChangeText={setCatchphrase}
+          placeholder={t('onboarding.catchphrasePlaceholder')}
+          error={validateCatchphrase(catchphrase) ? t(`validation.${validateCatchphrase(catchphrase)}`) : null} />
+        <Text style={styles.fieldLabel}>{t('onboarding.bioTitle')}</Text>
+        <GrimInput value={bio} onChangeText={setBio} multiline numberOfLines={4} style={styles.bioInput}
+          placeholder="…"
+          error={validateBio(bio) ? t(`validation.${validateBio(bio)}`) : null} />
 
-      <Text style={styles.section}>{t('settings.language')}</Text>
-      <View style={styles.langRow}>
-        {(['en', 'uk'] as const).map((l) => (
-          <Pressable key={l} onPress={() => switchLanguage(l)}
-            style={[styles.langChip, lang === l && styles.langChipOn]}>
-            <Text style={[styles.langText, lang === l && styles.langTextOn]}>
-              {l === 'en' ? 'English' : 'Українська'}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
+        <Text style={styles.section}>{t('settings.language')}</Text>
+        <View style={styles.langRow}>
+          {(['en', 'uk'] as const).map((l) => (
+            <Pressable key={l} onPress={() => switchLanguage(l)}
+              style={[styles.langChip, lang === l && styles.langChipOn]}>
+              <Text style={[styles.langText, lang === l && styles.langTextOn]}>
+                {l === 'en' ? 'English' : 'Українська'}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
 
-      <Text style={styles.section}>{t('brutality.title')}</Text>
-      {brutalityTiers.map((bt) => (
-        <Pressable key={bt.level} onPress={() => setTier(bt.level)}
-          style={[styles.tierRow, tier === bt.level && styles.tierRowOn]}>
-          <Text style={[styles.tierName, tier === bt.level && styles.tierNameOn]}>{t(bt.nameKey)}</Text>
-          <Text style={styles.tierDesc}>{t(bt.descKey)}</Text>
+        <Text style={styles.section}>{t('brutality.title')}</Text>
+        <Pressable onPress={() => setTierOpen(true)} style={styles.select}>
+          <View style={styles.selectText}>
+            <Text style={styles.selectName}>{t(currentTier.nameKey)}</Text>
+            <Text style={styles.selectDesc}>{t(currentTier.descKey)}</Text>
+          </View>
+          <Text style={styles.selectChevron}>▾</Text>
         </Pressable>
-      ))}
 
-      {error != null && <Text style={styles.error}>{error}</Text>}
-      {saved && <Text style={styles.savedText}>{t('settings.saved')}</Text>}
-      <GrimButton label={t('settings.save')} onPress={save}
-        disabled={busy || validateCatchphrase(catchphrase) != null || validateBio(bio) != null} />
-      <GrimButton label={t('settings.signOut')} variant="ghost" onPress={signOut} />
+        {error != null && !eraseOpen && <Text style={styles.error}>{error}</Text>}
+        {saved && <Text style={styles.savedText}>{t('settings.saved')}</Text>}
+        <GrimButton label={t('settings.save')} onPress={save}
+          disabled={busy || validateCatchphrase(catchphrase) != null || validateBio(bio) != null} />
+        <GrimButton label={t('settings.signOut')} variant="ghost" onPress={signOut} />
 
-      <Text style={[styles.section, styles.danger]}>{t('settings.dangerZone')}</Text>
-      <GrimButton label={t('settings.deleteAccount')} variant="ghost" onPress={() => setEraseOpen(true)} />
-      <GrimButton label={t('common.cancel')} variant="ghost" onPress={() => router.back()} />
+        <Text style={[styles.section, styles.danger]}>{t('settings.dangerZone')}</Text>
+        <GrimButton label={t('settings.deleteAccount')} variant="ghost" onPress={() => setEraseOpen(true)} />
+      </ScrollView>
+
+      <Modal visible={tierOpen} transparent animationType="fade" onRequestClose={() => setTierOpen(false)}>
+        <View style={styles.modalScrim}>
+          <View style={styles.modal}>
+            <Text style={styles.title}>{t('brutality.title')}</Text>
+            {brutalityTiers.map((bt) => (
+              <Pressable key={bt.level}
+                onPress={() => { setTier(bt.level); setTierOpen(false); }}
+                style={[styles.tierRow, tier === bt.level && styles.tierRowOn]}>
+                <Text style={[styles.tierName, tier === bt.level && styles.tierNameOn]}>{t(bt.nameKey)}</Text>
+                <Text style={styles.tierDesc}>{t(bt.descKey)}</Text>
+              </Pressable>
+            ))}
+            <GrimButton label={t('common.cancel')} variant="ghost" onPress={() => setTierOpen(false)} />
+          </View>
+        </View>
+      </Modal>
 
       <Modal visible={eraseOpen} transparent animationType="fade" onRequestClose={() => setEraseOpen(false)}>
         <View style={styles.modalScrim}>
@@ -142,12 +174,18 @@ export default function Settings() {
           </View>
         </View>
       </Modal>
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: { flex: 1, backgroundColor: semantic.bg },
+  screen: { flex: 1, backgroundColor: semantic.bg },
+  backArrow: {
+    position: 'absolute', top: spacing[5] * 1.5, left: spacing[4], zIndex: 2,
+    padding: spacing[1],
+  },
+  backArrowText: { color: colors.ash, fontSize: 24 },
+  scroll: { flex: 1 },
   root: { padding: spacing[4], paddingTop: spacing[5] * 2, gap: spacing[2] },
   title: { color: colors.bone, fontSize: 22, textAlign: 'center', letterSpacing: 1 },
   section: { color: colors.smoke, fontSize: 12, letterSpacing: 2, textTransform: 'uppercase', marginTop: spacing[3] },
@@ -158,12 +196,21 @@ const styles = StyleSheet.create({
   langChipOn: { borderColor: colors.blood, backgroundColor: colors.bloodMist },
   langText: { color: colors.ash, fontSize: 14 },
   langTextOn: { color: colors.bone },
+  select: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    backgroundColor: colors.crypt, borderWidth: 1, borderColor: colors.venomDim,
+    borderRadius: radii.button, padding: spacing[2],
+  },
+  selectText: { flex: 1 },
+  selectName: { color: colors.bone, fontSize: 15 },
+  selectDesc: { color: colors.smoke, fontSize: 11, marginTop: 2 },
+  selectChevron: { color: colors.venomDeep, fontSize: 16, marginLeft: spacing[2] },
   tierRow: { backgroundColor: colors.crypt, borderWidth: 1, borderColor: colors.venomDim, borderRadius: radii.button, padding: spacing[2] },
   tierRowOn: { borderColor: colors.blood, backgroundColor: colors.bloodMist },
   tierName: { color: colors.ash, fontSize: 15 },
   tierNameOn: { color: colors.bone },
   tierDesc: { color: colors.smoke, fontSize: 11, marginTop: 2 },
-  error: { color: colors.blood, fontSize: 13 },
+  error: { color: colors.blood, fontSize: 13, textAlign: 'center' },
   savedText: { color: colors.venom, fontSize: 13, textAlign: 'center' },
   danger: { color: colors.blood },
   eraseBody: { color: colors.ash, fontSize: 14, textAlign: 'center' },
