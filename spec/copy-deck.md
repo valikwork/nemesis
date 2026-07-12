@@ -252,6 +252,7 @@ Flow simplified: auth → sigil → name → ordeals → seal. Catchphrase and b
 | ordeals_limit | Five ordeals suffice for any legend. | П'яти випробувань досить для будь-якої легенди. |
 | forge_name_label | Activity | Активність |
 | forge_unit_label | Unit of measurement | Одиниця виміру |
+| onboarding_skill_hint_subtitle | How many {unit}? | Скільки {unit}? |
 
 Register note: `ordeals_subtitle` is deliberately plain (owner: users must instantly understand what they're picking — no archaic riddles on load-bearing explanations).
 

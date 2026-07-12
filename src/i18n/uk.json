@@ -29,7 +29,8 @@
     "notificationsAsk": "Дозволити ворогові порушувати твій спокій?",
     "skillHintTitle": "Назви свою майстерність",
     "sealTitle": "Скріпи свою подобу",
-    "sealCta": "Скріпити кров'ю"
+    "sealCta": "Скріпити кров'ю",
+    "skillHintSubtitle": "Скільки {{unit}}?"
   },
   "common": {
     "next": "Далі",

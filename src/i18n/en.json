@@ -29,7 +29,8 @@
     "notificationsAsk": "Allow thy nemesis to disturb thy peace?",
     "skillHintTitle": "Name thy prowess",
     "sealTitle": "Seal thy persona",
-    "sealCta": "Seal it in blood"
+    "sealCta": "Seal it in blood",
+    "skillHintSubtitle": "How many {{unit}}?"
   },
   "common": {
     "next": "Onward",

@@ -129,6 +129,14 @@ export default function OrdealsStep() {
         <View style={styles.modalScrim}>
           <View style={styles.modal}>
             <Text style={styles.title}>{t('onboarding.skillHintTitle')}</Text>
+            {hintFor != null && (() => {
+              const row = rows.find((r) => r.id === hintFor);
+              return row != null ? (
+                <Text style={styles.subtitle}>
+                  {t('onboarding.skillHintSubtitle', { unit: ordealUnit(row, lang) })}
+                </Text>
+              ) : null;
+            })()}
             <GrimInput value={hintText} onChangeText={setHintText} placeholder="1450"
               keyboardType="numeric"
               error={validateSkillHint(hintText) ? t(`validation.${validateSkillHint(hintText)}`) : null} />
