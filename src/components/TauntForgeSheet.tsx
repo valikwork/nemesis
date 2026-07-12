@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 import { fetchTauntKit, assembleTaunt, sendTaunt, type TauntTemplate, type TauntBankWord } from '../lib/taunts';
 import { GrimButton } from './GrimButton';
 import { colors, radii, spacing } from '../theme/tokens';
+import { errMessage } from '../lib/err';
 
 interface Props {
   feudId: string;
@@ -42,7 +43,7 @@ export function TauntForgeSheet({ feudId, visible, onClose, onSent }: Props) {
       onSent();
       onClose();
     } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
+      const msg = errMessage(e);
       setError(msg.includes('taunt_spent') ? t('forge.spent') : msg);
     } finally {
       setBusy(false);

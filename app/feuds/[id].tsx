@@ -17,6 +17,7 @@ import { GrimButton } from '../../src/components/GrimButton';
 import { GrimInput } from '../../src/components/GrimInput';
 import { TauntForgeSheet } from '../../src/components/TauntForgeSheet';
 import { colors, radii, semantic, spacing } from '../../src/theme/tokens';
+import { errMessage } from '../../src/lib/err';
 
 export default function FeudScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -106,7 +107,7 @@ export default function FeudScreen() {
       setValue(''); setNote(''); setProofUri(null);
       await load();
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(errMessage(e));
     } finally {
       setBusy(false);
     }

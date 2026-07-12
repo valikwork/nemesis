@@ -8,6 +8,7 @@ import { completeOnboarding } from '../../src/onboarding/complete';
 import { registerPushToken } from '../../src/lib/push';
 import { useSession } from '../../src/auth/session';
 import { colors, semantic, spacing } from '../../src/theme/tokens';
+import { errMessage } from '../../src/lib/err';
 
 export default function FinishStep() {
   const { t } = useTranslation();
@@ -30,7 +31,7 @@ export default function FinishStep() {
         if (data.user != null) registerPushToken(supabase, data.user.id);
       }); // fire-and-forget: push is optional, must not block routing
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(errMessage(e));
       setBusy(false);
     }
   }

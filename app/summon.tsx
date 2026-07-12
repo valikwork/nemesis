@@ -9,6 +9,7 @@ import { ordealLabel, type OrdealRow } from '../src/onboarding/ordeal-labels';
 import { GrimButton } from '../src/components/GrimButton';
 import { GrimInput } from '../src/components/GrimInput';
 import { colors, radii, semantic, spacing } from '../src/theme/tokens';
+import { errMessage } from '../src/lib/err';
 
 export default function Summon() {
   const { t, i18n } = useTranslation();
@@ -46,7 +47,7 @@ export default function Summon() {
       await Share.share({ message: `${t('summon.shareText')}\nnemesis://feud/${invite.code}` });
       await reload();
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(errMessage(e));
     } finally {
       setBusy(false);
     }
