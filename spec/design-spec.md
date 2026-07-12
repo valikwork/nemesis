@@ -193,3 +193,4 @@ Build order: React Native (Expo) app first, built from the artifacts. Later, ded
 - Inactivity threshold N for "gone soft".
 - Ordeal catalog seed list (serious + goofy starters).
 - Mask avatar preset art source (commissioned vs generated, pre-shipped set).
+**Open question added 2026-07-12 (Plan 5 candidate): "measured ordeals" — latest-value aggregation.** Some competitions track a LEVEL, not a count: chess ELO, body weight, fastest 5k, max bench. Proposal: ordeals gain an aggregation mode (`sum` — default, current behavior — vs `latest`); for `latest` ordeals towers show each side's most recent logged value, showdown = "first to REACH goal". Touches: ordeals schema (+aggregation column), goal trigger (latest vs sum comparison), tower-math (heights from latest), forge UI (mode picker), copy. Origin: owner wanted ELO as the chess unit; ELO doesn't sum — cumulative "Chess victories / wins" stays for now, ELO remains a skill-hint.
