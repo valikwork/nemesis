@@ -6,51 +6,38 @@ import { supabase } from '../../src/lib/supabase';
 import { GrimButton } from '../../src/components/GrimButton';
 import { GrimInput } from '../../src/components/GrimInput';
 import { loadDraft, saveDraft } from '../../src/onboarding/draft';
-import { ordealLabel, ordealUnit, type OrdealRow } from '../../src/onboarding/ordeal-labels';
-import { validateOrdealName, validateOrdealUnit, validateSkillHint } from '../../src/lib/validation';
+import { ordealLabel, type OrdealRow } from '../../src/onboarding/ordeal-labels';
+import { validateOrdealName, validateOrdealUnit } from '../../src/lib/validation';
 import { colors, radii, semantic, spacing } from '../../src/theme/tokens';
 
+// Ordeals are interests, not accomplishments (owner, 2026-07-12): no skill
+// hint / prowess question anywhere — picking one is just "I beef about this".
 export default function OrdealsStep() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const lang = i18n.language;
   const [rows, setRows] = useState<OrdealRow[]>([]);
-  const [selected, setSelected] = useState<Record<string, string>>({}); // ordealId -> skillHint
+  const [selected, setSelected] = useState<Set<string>>(new Set());
   const [forgeOpen, setForgeOpen] = useState(false);
   const [forgeName, setForgeName] = useState('');
   const [forgeUnit, setForgeUnit] = useState('');
   const [forgeAgg, setForgeAgg] = useState<'sum' | 'latest'>('sum');
   const [forgeError, setForgeError] = useState<string | null>(null);
-  const [hintFor, setHintFor] = useState<string | null>(null);
-  const [hintText, setHintText] = useState('');
 
   useEffect(() => {
     supabase.from('ordeals').select('*').order('name_en').then(({ data }) => setRows((data as OrdealRow[]) ?? []));
-    loadDraft().then((d) => setSelected(Object.fromEntries(d.ordeals.map((o) => [o.ordealId, o.skillHint]))));
+    loadDraft().then((d) => setSelected(new Set(d.ordeals.map((o) => o.ordealId))));
   }, []);
 
   function toggle(id: string) {
-    if (selected[id] !== undefined) {
-      const next = { ...selected };
-      delete next[id];
-      setSelected(next);
+    const next = new Set(selected);
+    if (next.has(id)) {
+      next.delete(id);
     } else {
-      if (Object.keys(selected).length >= 5) return;
-      setHintFor(id);
-      setHintText('');
+      if (next.size >= 5) return;
+      next.add(id);
     }
-  }
-
-  function confirmHint() {
-    if (hintFor == null || validateSkillHint(hintText) != null) return;
-    // same cap as toggle(): confirming a hint for a not-yet-selected ordeal
-    // (including one just forged) must not push the selection past 5
-    if (selected[hintFor] === undefined && Object.keys(selected).length >= 5) {
-      setHintFor(null);
-      return;
-    }
-    setSelected({ ...selected, [hintFor]: hintText.trim() });
-    setHintFor(null);
+    setSelected(next);
   }
 
   async function forge() {
@@ -69,17 +56,14 @@ export default function OrdealsStep() {
     setForgeName('');
     setForgeUnit('');
     setForgeAgg('sum');
-    // freshly forged ordeal goes straight to the skill-hint sheet, so the
-    // creator states their level immediately; confirming there selects it
-    setHintFor(row.id);
-    setHintText('');
+    if (selected.size < 5) setSelected(new Set(selected).add(row.id));
   }
 
   async function next() {
     const draft = await loadDraft();
     await saveDraft({
       ...draft,
-      ordeals: Object.entries(selected).map(([ordealId, skillHint]) => ({ ordealId, skillHint })),
+      ordeals: [...selected].map((ordealId) => ({ ordealId, skillHint: '' })),
     });
     router.push('/(onboarding)/finish');
   }
@@ -88,7 +72,7 @@ export default function OrdealsStep() {
     <View style={styles.root}>
       <Text style={styles.title}>{t('onboarding.ordealsTitle')}</Text>
       <Text style={styles.subtitle}>{t('onboarding.ordealsSubtitle')}</Text>
-      {Object.keys(selected).length >= 5 && (
+      {selected.size >= 5 && (
         <Text style={styles.limitNote}>{t('onboarding.ordealsLimit')}</Text>
       )}
       <FlatList
@@ -96,19 +80,16 @@ export default function OrdealsStep() {
         keyExtractor={(r) => r.id}
         contentContainerStyle={styles.list}
         renderItem={({ item }) => {
-          const on = selected[item.id] !== undefined;
+          const on = selected.has(item.id);
           return (
             <Pressable onPress={() => toggle(item.id)} style={[styles.row, on && styles.rowOn]}>
               <Text style={[styles.rowLabel, on && styles.rowLabelOn]}>{ordealLabel(item, lang)}</Text>
-              <Text style={styles.rowUnit}>
-                {ordealUnit(item, lang)}{on && selected[item.id] ? ` · ${selected[item.id]}` : ''}
-              </Text>
             </Pressable>
           );
         }}
       />
       <GrimButton label={t('onboarding.forgeCta')} variant="ghost" onPress={() => setForgeOpen(true)} />
-      <GrimButton label={t('common.next')} onPress={next} disabled={Object.keys(selected).length === 0} />
+      <GrimButton label={t('common.next')} onPress={next} disabled={selected.size === 0} />
 
       <Modal visible={forgeOpen} transparent animationType="fade" onRequestClose={() => setForgeOpen(false)}>
         <View style={styles.modalScrim}>
@@ -136,27 +117,6 @@ export default function OrdealsStep() {
           </View>
         </View>
       </Modal>
-
-      <Modal visible={hintFor != null} transparent animationType="fade" onRequestClose={() => setHintFor(null)}>
-        <View style={styles.modalScrim}>
-          <View style={styles.modal}>
-            <Text style={styles.title}>{t('onboarding.skillHintTitle')}</Text>
-            {hintFor != null && (() => {
-              const row = rows.find((r) => r.id === hintFor);
-              return row != null ? (
-                <Text style={styles.subtitle}>
-                  {t('onboarding.skillHintSubtitle', { unit: ordealUnit(row, lang) })}
-                </Text>
-              ) : null;
-            })()}
-            <GrimInput value={hintText} onChangeText={setHintText} placeholder="1450"
-              keyboardType="numeric"
-              error={validateSkillHint(hintText) ? t(`validation.${validateSkillHint(hintText)}`) : null} />
-            <GrimButton label={t('common.confirm')} onPress={confirmHint} disabled={validateSkillHint(hintText) != null} />
-            <GrimButton label={t('common.cancel')} variant="ghost" onPress={() => setHintFor(null)} />
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }
@@ -169,14 +129,12 @@ const styles = StyleSheet.create({
   fieldLabel: { color: colors.ash, fontSize: 12, letterSpacing: 1 },
   list: { gap: spacing[1] },
   row: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     backgroundColor: colors.crypt, borderWidth: 1, borderColor: colors.venomDim,
     borderRadius: radii.button, paddingVertical: spacing[2], paddingHorizontal: spacing[3],
   },
   rowOn: { borderColor: colors.blood, backgroundColor: colors.bloodMist },
   rowLabel: { color: colors.ash, fontSize: 15 },
   rowLabelOn: { color: colors.bone },
-  rowUnit: { color: colors.smoke, fontSize: 12 },
   error: { color: colors.blood, fontSize: 13 },
   aggRow: {
     backgroundColor: colors.crypt, borderWidth: 1, borderColor: colors.venomDim,

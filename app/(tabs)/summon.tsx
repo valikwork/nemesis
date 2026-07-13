@@ -1,22 +1,20 @@
 import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, Pressable, Share, Switch } from 'react-native';
-import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '../src/lib/supabase';
-import { useSession } from '../src/auth/session';
-import { createInvite, pendingInvites, revokeInvite, myOrdeals, type PendingInvite } from '../src/lib/feuds';
-import { ordealLabel, type OrdealRow } from '../src/onboarding/ordeal-labels';
-import { GrimButton } from '../src/components/GrimButton';
-import { BrutalText } from '../src/components/BrutalText';
-import { GrimInput } from '../src/components/GrimInput';
-import { colors, radii, semantic, spacing } from '../src/theme/tokens';
-import { errMessage } from '../src/lib/err';
-import { useBrutality } from '../src/theme/brutality-context';
+import { supabase } from '../../src/lib/supabase';
+import { useSession } from '../../src/auth/session';
+import { createInvite, pendingInvites, revokeInvite, myOrdeals, type PendingInvite } from '../../src/lib/feuds';
+import { ordealLabel, type OrdealRow } from '../../src/onboarding/ordeal-labels';
+import { GrimButton } from '../../src/components/GrimButton';
+import { BrutalText } from '../../src/components/BrutalText';
+import { GrimInput } from '../../src/components/GrimInput';
+import { colors, radii, semantic, spacing } from '../../src/theme/tokens';
+import { errMessage } from '../../src/lib/err';
+import { useBrutality } from '../../src/theme/brutality-context';
 
 export default function Summon() {
   const { t, i18n } = useTranslation();
   const { font } = useBrutality();
-  const router = useRouter();
   const { session } = useSession();
   const [ordeals, setOrdeals] = useState<OrdealRow[]>([]);
   const [ordealId, setOrdealId] = useState<string | null>(null);
@@ -111,7 +109,6 @@ export default function Summon() {
           ))}
         </View>
       )}
-      <GrimButton label={t('common.cancel')} variant="ghost" onPress={() => router.back()} />
     </View>
   );
 }

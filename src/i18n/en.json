@@ -189,5 +189,17 @@
     "score": "{{name}}'s tower grows.",
     "declare": "Thou hast been named an arch-nemesis.",
     "goalNear": "Thy nemesis nears the goal."
+  },
+  "tabs": {
+    "feuds": "Feuds",
+    "hunt": "Hunt",
+    "summon": "Summon",
+    "profile": "Profile"
+  },
+  "profile": {
+    "ordealsTitle": "Thy ordeals",
+    "ordealsHint": "What thou art willing to feud over.",
+    "ordealsEmpty": "No ordeals chosen. Add one.",
+    "addOrdeal": "Add an ordeal"
   }
 }

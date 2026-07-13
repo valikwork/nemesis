@@ -29,7 +29,9 @@ export function FeudRowCard({ item, onPress }: Props) {
       </View>
       <View style={styles.scores}>
         <Text style={styles.score}>{item.myTotal} : {item.theirTotal}</Text>
-        <Text style={styles.unit}>{ordealUnit(item.ordeal, i18n.language)}</Text>
+        {item.feud.mode === 'showdown' && (
+          <Text style={styles.unit}>{ordealUnit(item.ordeal, i18n.language)}</Text>
+        )}
       </View>
     </Pressable>
   );

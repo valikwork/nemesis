@@ -11,7 +11,7 @@ jest.mock('expo-router', () => ({
   useFocusEffect: (effect: () => void) => effect(),
 }));
 
-import Home from '../index';
+import Home from '../(tabs)/index';
 
 describe('Home', () => {
   it('renders logo and empty state', async () => {

@@ -2,19 +2,18 @@ import { useCallback, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, RefreshControl, Pressable } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '../src/lib/supabase';
-import { useSession } from '../src/auth/session';
-import { listFeudsWithMeta, type FeudWithMeta } from '../src/lib/feuds';
-import { respondFeud, resolveDeclare, myDeclares, myMatches, proposeFeud, type DeclareRow, type MatchCard } from '../src/lib/deck';
-import { notifyOpponent } from '../src/lib/push';
-import { SIGILS } from '../src/onboarding/sigils';
-import { FeudRowCard } from '../src/components/FeudRowCard';
-import { GloveSheet } from '../src/components/GloveSheet';
-import { GrimButton } from '../src/components/GrimButton';
-import { BrutalText } from '../src/components/BrutalText';
-import { colors, radii, semantic, spacing } from '../src/theme/tokens';
-import { useBrutality } from '../src/theme/brutality-context';
-import { errMessage } from '../src/lib/err';
+import { supabase } from '../../src/lib/supabase';
+import { useSession } from '../../src/auth/session';
+import { listFeudsWithMeta, type FeudWithMeta } from '../../src/lib/feuds';
+import { respondFeud, resolveDeclare, myDeclares, myMatches, proposeFeud, type DeclareRow, type MatchCard } from '../../src/lib/deck';
+import { notifyOpponent } from '../../src/lib/push';
+import { SIGILS } from '../../src/onboarding/sigils';
+import { FeudRowCard } from '../../src/components/FeudRowCard';
+import { GloveSheet } from '../../src/components/GloveSheet';
+import { BrutalText } from '../../src/components/BrutalText';
+import { colors, radii, semantic, spacing } from '../../src/theme/tokens';
+import { useBrutality } from '../../src/theme/brutality-context';
+import { errMessage } from '../../src/lib/err';
 
 interface DeclareBanner extends DeclareRow {
   declarer_name: string;
@@ -106,9 +105,6 @@ export default function Home() {
 
   return (
     <View style={styles.root}>
-      <Pressable style={styles.gear} onPress={() => router.push('/settings')}>
-        <Text style={styles.gearText}>⚙︎</Text>
-      </Pressable>
       <BrutalText text="NEMESIS" font={font('logo')} style={styles.logo} />
       <BrutalText text={t('home.title')} font={font('display')} style={styles.title} />
       {error != null && <Text style={styles.error}>{error}</Text>}
@@ -192,9 +188,6 @@ export default function Home() {
           ) : null
         }
       />
-      <GrimButton label={t('deck.tab')} variant="ghost" onPress={() => router.push('/deck')} />
-      <GrimButton label={t('home.summonCta')} onPress={() => router.push('/summon')} />
-
       <GloveSheet
         visible={gloveFor != null}
         sharedOrdeals={gloveFor?.shared_ordeals ?? []}
@@ -209,8 +202,6 @@ export default function Home() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: semantic.bg, padding: spacing[4], paddingTop: spacing[5] * 2, gap: spacing[2] },
-  gear: { position: 'absolute', top: spacing[5] * 1.5, right: spacing[4] },
-  gearText: { color: colors.smoke, fontSize: 22 },
   logo: { color: semantic.text, fontSize: 30, letterSpacing: 5, textAlign: 'center' },
   title: { color: colors.venomDeep, fontSize: 13, letterSpacing: 2, textAlign: 'center', marginBottom: spacing[2] },
   list: { gap: spacing[2], flexGrow: 1 },

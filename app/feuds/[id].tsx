@@ -132,7 +132,8 @@ export default function FeudScreen() {
 
   if (feud == null || ordeal == null) return <View style={styles.root} />;
 
-  const unit = ordealUnit(ordeal, i18n.language);
+  // units are showdown furniture (owner, 2026-07-12) — endless feuds show bare numbers
+  const unit = feud.mode === 'showdown' ? ordealUnit(ordeal, i18n.language) : '';
   const opponentId = feud.profile_a === myId ? feud.profile_b : feud.profile_a;
   const ended = feud.status === 'ended';
   const iWon = ended && feud.winner === myId;
@@ -239,7 +240,7 @@ export default function FeudScreen() {
                 {mine ? t('feud.you') : opponentName}
               </Text>
               <Text style={styles.entryValue}>
-                +{Number(item.value)} {unit}{rumor ? ` · ${t('feud.entryRumor')}` : ''}
+                +{Number(item.value)}{unit !== '' ? ` ${unit}` : ''}{rumor ? ` · ${t('feud.entryRumor')}` : ''}
               </Text>
               {item.note != null && <Text style={styles.entryNote}>{item.note}</Text>}
             </View>
@@ -252,7 +253,7 @@ export default function FeudScreen() {
         <View style={styles.modalScrim}>
           <View style={styles.modal}>
             <Text style={styles.header}>{t('feud.logTitle')}</Text>
-            <Text style={styles.fieldLabel}>{t('feud.valueLabel')} ({unit})</Text>
+            <Text style={styles.fieldLabel}>{t('feud.valueLabel')}{unit !== '' ? ` (${unit})` : ''}</Text>
             <GrimInput value={value} onChangeText={setValue} placeholder="5" keyboardType="numeric" />
             <Text style={styles.fieldLabel}>{t('feud.noteLabel')}</Text>
             <GrimInput value={note} onChangeText={setNote} placeholder="…" />

@@ -69,6 +69,8 @@ Each screen lists states; behavior tables are normative. (Consolidated with 2026
 
 **Home = Feud list** — active feuds ranked, arch-nemesis pinned top with permanent slot styling; ended/dissolved in "Buried feuds" section. Primary CTA: "Summon a friend". Secondary tab: "Hunting grounds" (deck).
 
+**Navigation revision (2026-07-12, owner — Tinder-style):** four bottom tabs: **Feuds** (home) · **Hunting grounds** (deck) · **Summon** (forge summons) · **Profile** (persona + ordeal manager: add/remove/forge ordeals, Tinder-interests style, cap 5). Frosted-glass settings button pinned top-right on every tab. **Prowess/skill-hint question removed everywhere** — ordeals are interests ("what thou art willing to feud over"), not an accomplishments list; `profile_ordeals.skill_hint` column dormant. Units render only in showdown contexts (goal line, showdown feud cards/log sheet); endless feuds show bare numbers.
+
 **Onboarding** — steps: auth → mask picker → nemesis name + catchphrase → bio → ordeal picker (+forge) → skill hints → notifications permission. No location step. States: fresh, resumed-incomplete. Skippable: catchphrase, bio; everything else required.
 
 **Summon sheet (invite create)** — ordeal picker + mode toggle + goal input (showdown only) → share link/QR. Pending summons list with terms and revoke.

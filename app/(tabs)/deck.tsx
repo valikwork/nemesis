@@ -2,20 +2,20 @@ import { useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '../src/lib/supabase';
-import { useSession } from '../src/auth/session';
-import { getDeck, swipeRival, proposeFeud, type DeckCard } from '../src/lib/deck';
-import { optIntoLocation, hasLocation } from '../src/lib/location';
-import { notifyProfile } from '../src/lib/push';
-import { ordealLabel } from '../src/onboarding/ordeal-labels';
-import { SIGILS } from '../src/onboarding/sigils';
-import { MatchMoment } from '../src/components/MatchMoment';
-import { GloveSheet } from '../src/components/GloveSheet';
-import { GrimButton } from '../src/components/GrimButton';
-import { BrutalText } from '../src/components/BrutalText';
-import { colors, radii, semantic, spacing } from '../src/theme/tokens';
-import { errMessage } from '../src/lib/err';
-import { useBrutality } from '../src/theme/brutality-context';
+import { supabase } from '../../src/lib/supabase';
+import { useSession } from '../../src/auth/session';
+import { getDeck, swipeRival, proposeFeud, type DeckCard } from '../../src/lib/deck';
+import { optIntoLocation, hasLocation } from '../../src/lib/location';
+import { notifyProfile } from '../../src/lib/push';
+import { ordealLabel } from '../../src/onboarding/ordeal-labels';
+import { SIGILS } from '../../src/onboarding/sigils';
+import { MatchMoment } from '../../src/components/MatchMoment';
+import { GloveSheet } from '../../src/components/GloveSheet';
+import { GrimButton } from '../../src/components/GrimButton';
+import { BrutalText } from '../../src/components/BrutalText';
+import { colors, radii, semantic, spacing } from '../../src/theme/tokens';
+import { errMessage } from '../../src/lib/err';
+import { useBrutality } from '../../src/theme/brutality-context';
 
 type Gate = 'checking' | 'ask' | 'open';
 
@@ -160,13 +160,11 @@ export default function Deck() {
               {shared.map((o) => (
                 <View key={o.id} style={[styles.ordealChip, styles.ordealChipShared]}>
                   <Text style={styles.ordealNameShared}>{ordealLabel(o, i18n.language)}</Text>
-                  {o.skill_hint != null && <Text style={styles.ordealHint}>{o.skill_hint}</Text>}
                 </View>
               ))}
               {rest.map((o) => (
                 <View key={o.id} style={styles.ordealChip}>
                   <Text style={styles.ordealName}>{ordealLabel(o, i18n.language)}</Text>
-                  {o.skill_hint != null && <Text style={styles.ordealHint}>{o.skill_hint}</Text>}
                 </View>
               ))}
               {card.bio != null && <Text style={styles.cardBio}>{card.bio}</Text>}
@@ -183,8 +181,6 @@ export default function Deck() {
           </View>
         </>
       )}
-
-      <GrimButton label={t('common.cancel')} variant="ghost" onPress={() => router.back()} />
 
       <GloveSheet
         visible={termsFor != null}
@@ -220,7 +216,6 @@ const styles = StyleSheet.create({
   ordealChipShared: { borderWidth: 1, borderColor: colors.blood },
   ordealName: { color: colors.smoke, fontSize: 14, flexShrink: 1 },
   ordealNameShared: { color: colors.bone, fontSize: 14, flexShrink: 1 },
-  ordealHint: { color: colors.venomDeep, fontSize: 12 },
   cardBio: { color: colors.smoke, fontSize: 13, marginTop: spacing[2], lineHeight: 19 },
   verdictRow: { flexDirection: 'row', gap: spacing[2] },
   verdictBtn: { flex: 1 },
