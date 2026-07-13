@@ -7,7 +7,6 @@ import { supabase } from '../src/lib/supabase';
 import { useSession } from '../src/auth/session';
 import { setAppLanguage } from '../src/i18n';
 import { brutalityTiers, tierFor } from '../src/theme/brutality';
-import { validateCatchphrase, validateBio } from '../src/lib/validation';
 import { errMessage } from '../src/lib/err';
 import { useBrutality } from '../src/theme/brutality-context';
 import { GrimButton } from '../src/components/GrimButton';
@@ -22,8 +21,6 @@ export default function Settings() {
   const { font, setLevel } = useBrutality();
   const uid = session?.user.id;
 
-  const [catchphrase, setCatchphrase] = useState('');
-  const [bio, setBio] = useState('');
   const [realName, setRealName] = useState('');
   const [hasPortrait, setHasPortrait] = useState(false);
   const [tier, setTier] = useState(1);
@@ -36,11 +33,9 @@ export default function Settings() {
 
   useEffect(() => {
     if (uid == null) return;
-    supabase.from('profiles').select('catchphrase, bio, brutality_tier, language').eq('id', uid).maybeSingle()
+    supabase.from('profiles').select('brutality_tier, language').eq('id', uid).maybeSingle()
       .then(({ data }) => {
         if (data == null) return;
-        setCatchphrase(data.catchphrase ?? '');
-        setBio(data.bio ?? '');
         setTier(data.brutality_tier ?? 1);
       });
     supabase.from('unmasked_identities').select('real_name, photo_url').eq('profile_id', uid).maybeSingle()
@@ -66,8 +61,6 @@ export default function Settings() {
     setError(null);
     try {
       const { error: e } = await supabase.from('profiles').update({
-        catchphrase: catchphrase.trim() || null,
-        bio: bio.trim() || null,
         brutality_tier: tier,
       }).eq('id', uid);
       if (e) throw e;
@@ -146,16 +139,6 @@ export default function Settings() {
       <ScrollView style={styles.scroll} contentContainerStyle={styles.root}>
         <BrutalText text={t('settings.title')} font={font('display')} style={styles.title} />
 
-        <Text style={styles.section}>{t('settings.persona')}</Text>
-        <Text style={styles.fieldLabel}>{t('onboarding.catchphraseTitle')}</Text>
-        <GrimInput value={catchphrase} onChangeText={setCatchphrase}
-          placeholder={t('onboarding.catchphrasePlaceholder')}
-          error={validateCatchphrase(catchphrase) ? t(`validation.${validateCatchphrase(catchphrase)}`) : null} />
-        <Text style={styles.fieldLabel}>{t('onboarding.bioTitle')}</Text>
-        <GrimInput value={bio} onChangeText={setBio} multiline numberOfLines={4} style={styles.bioInput}
-          placeholder="…"
-          error={validateBio(bio) ? t(`validation.${validateBio(bio)}`) : null} />
-
         <Text style={styles.section}>{t('settings.identityTitle')}</Text>
         <Text style={styles.identityHint}>{t('settings.identityHint')}</Text>
         <Text style={styles.fieldLabel}>{t('settings.realName')}</Text>
@@ -189,8 +172,7 @@ export default function Settings() {
 
         {error != null && !eraseOpen && <Text style={styles.error}>{error}</Text>}
         {saved && <Text style={styles.savedText}>{t('settings.saved')}</Text>}
-        <GrimButton label={t('settings.save')} onPress={save}
-          disabled={busy || validateCatchphrase(catchphrase) != null || validateBio(bio) != null} />
+        <GrimButton label={t('settings.save')} onPress={save} disabled={busy} />
         <GrimButton label={t('settings.signOut')} variant="ghost" onPress={signOut} />
 
         <Text style={[styles.section, styles.danger]}>{t('settings.dangerZone')}</Text>
@@ -244,7 +226,6 @@ const styles = StyleSheet.create({
   fieldLabel: { color: colors.ash, fontSize: 12, letterSpacing: 1 },
   identityHint: { color: colors.smoke, fontSize: 12 },
   portraitCta: { color: colors.venom, fontSize: 13 },
-  bioInput: { minHeight: 90, textAlignVertical: 'top' },
   langRow: { flexDirection: 'row', gap: spacing[2] },
   langChip: { flex: 1, alignItems: 'center', paddingVertical: spacing[2], borderRadius: radii.button, borderWidth: 1, borderColor: colors.venomDim, backgroundColor: colors.crypt },
   langChipOn: { borderColor: colors.blood, backgroundColor: colors.bloodMist },

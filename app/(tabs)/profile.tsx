@@ -6,7 +6,7 @@ import { supabase } from '../../src/lib/supabase';
 import { useSession } from '../../src/auth/session';
 import { ordealLabel, type OrdealRow } from '../../src/onboarding/ordeal-labels';
 import { SIGILS } from '../../src/onboarding/sigils';
-import { validateOrdealName, validateOrdealUnit } from '../../src/lib/validation';
+import { validateOrdealName, validateOrdealUnit, validateCatchphrase, validateBio } from '../../src/lib/validation';
 import { GrimButton } from '../../src/components/GrimButton';
 import { GrimInput } from '../../src/components/GrimInput';
 import { BrutalText } from '../../src/components/BrutalText';
@@ -23,7 +23,10 @@ export default function Profile() {
   const uid = session?.user.id;
   const lang = i18n.language;
 
-  const [persona, setPersona] = useState<{ nemesis_name: string; catchphrase: string | null; mask_avatar_id: string } | null>(null);
+  const [persona, setPersona] = useState<{ nemesis_name: string; mask_avatar_id: string } | null>(null);
+  const [catchphrase, setCatchphrase] = useState('');
+  const [bio, setBio] = useState('');
+  const [saved, setSaved] = useState(false);
   const [mine, setMine] = useState<OrdealRow[]>([]);
   const [catalog, setCatalog] = useState<OrdealRow[]>([]);
   const [pickOpen, setPickOpen] = useState(false);
@@ -36,11 +39,13 @@ export default function Profile() {
   const load = useCallback(async () => {
     if (uid == null) return;
     const [{ data: p }, { data: po }, { data: all }] = await Promise.all([
-      supabase.from('profiles').select('nemesis_name, catchphrase, mask_avatar_id').eq('id', uid).maybeSingle(),
+      supabase.from('profiles').select('nemesis_name, catchphrase, bio, mask_avatar_id').eq('id', uid).maybeSingle(),
       supabase.from('profile_ordeals').select('ordeal:ordeals(*)').eq('profile_id', uid),
       supabase.from('ordeals').select('*').eq('moderation_status', 'approved').order('name_en'),
     ]);
     setPersona(p ?? null);
+    setCatchphrase(p?.catchphrase ?? '');
+    setBio(p?.bio ?? '');
     setMine(((po ?? []) as any[]).map((r) => r.ordeal as OrdealRow));
     setCatalog((all ?? []) as OrdealRow[]);
   }, [uid]);
@@ -72,6 +77,22 @@ export default function Profile() {
     }
   }
 
+  async function savePersona() {
+    if (uid == null) return;
+    setError(null);
+    try {
+      const { error: e } = await supabase.from('profiles').update({
+        catchphrase: catchphrase.trim() || null,
+        bio: bio.trim() || null,
+      }).eq('id', uid);
+      if (e) throw e;
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch (e) {
+      setError(errMessage(e));
+    }
+  }
+
   async function forge() {
     setError(null);
     const { data, error: fe } = await supabase.rpc('forge_ordeal', {
@@ -96,7 +117,19 @@ export default function Profile() {
     <View style={styles.root}>
       <Text style={styles.sigil}>{glyph}</Text>
       {persona != null && <BrutalText text={persona.nemesis_name} font={font('display')} style={styles.name} />}
-      {persona?.catchphrase != null && <Text style={styles.phrase}>“{persona.catchphrase}”</Text>}
+
+      <Text style={styles.section}>{t('settings.persona')}</Text>
+      <Text style={styles.fieldLabel}>{t('onboarding.catchphraseTitle')}</Text>
+      <GrimInput value={catchphrase} onChangeText={setCatchphrase}
+        placeholder={t('onboarding.catchphrasePlaceholder')}
+        error={validateCatchphrase(catchphrase) ? t(`validation.${validateCatchphrase(catchphrase)}`) : null} />
+      <Text style={styles.fieldLabel}>{t('onboarding.bioTitle')}</Text>
+      <GrimInput value={bio} onChangeText={setBio} multiline numberOfLines={3}
+        placeholder="…"
+        error={validateBio(bio) ? t(`validation.${validateBio(bio)}`) : null} />
+      {saved && <Text style={styles.hint}>{t('settings.saved')}</Text>}
+      <GrimButton label={t('settings.save')} onPress={savePersona}
+        disabled={validateCatchphrase(catchphrase) != null || validateBio(bio) != null} />
 
       <Text style={styles.section}>{t('profile.ordealsTitle')}</Text>
       <Text style={styles.hint}>{t('profile.ordealsHint')}</Text>

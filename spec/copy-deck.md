@@ -177,7 +177,7 @@ More templates added over time; each language's banks are authored independently
 | brutality_3      | Hardcore                                                                 | Хардкор                                                               |
 | brutality_3_desc | Legibility is for the weak.                                              | Розбірливість — для слабких.                                          |
 | brutality_4      | I don't care                                                             | Мені начхати                                                          |
-| brutality_4_desc | You will suffer.                                                         | Ти страждатимеш                                                       |
+| brutality_4_desc | I don't care                                                         | Ти страждатимеш                                                       |
 | brutality_5      | I REALLY don't care                                                      | Мені СПРАВДІ начхати                                                  |
 | brutality_5_desc | The most brutal choice of all.                                           | Найбрутальніший вибір з усіх.                                         |
 | delete_account   | Erase my legend                                                          | Стерти мою легенду                                                    |
