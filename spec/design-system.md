@@ -9,7 +9,7 @@ Never pure `#fff` or `#000`. Lightest value is bone; darkest is void.
 | Token | Hex | Role |
 |---|---|---|
 | `void` | `#060507` | app background (deepest) |
-| `ink` | `#0a0510` | screen background |
+| `ink` | `#0c0b0d` | screen background |
 | `crypt` | `#100a1a` | card / surface background |
 | `crypt-raised` | `#140d21` | elevated surface (card image area, modals) |
 | `bone` | `#e8e4da` | primary text, primary icons |
@@ -38,17 +38,17 @@ Font slots: `logo`, `display` (screen titles, rival names), `label` (section hea
 
 | Tier | Name | logo | display | label | body | numeral |
 |---|---|---|---|---|---|---|
-| 1 | Soft | Maskdown | Pickyside | Pickyside | readable sans — **TBD** | body font, arabic digits |
-| 2 | Hard | Maskdown | Soulside Betrayed | Soulside Betrayed | readable sans — **TBD** | arabic digits |
-| 3 | Hardcore | Maskdown | Arathos | Arathos | Pickyside | arabic digits |
+| 1 | Soft | Pickyside | Pickyside | Pickyside | Pickyside | body font, arabic digits |
+| 2 | Hard | Soulside Betrayed | Soulside Betrayed | Soulside Betrayed | Pickyside | arabic digits |
+| 3 | Hardcore | Maskdown | Groovy Tribal | Groovy Tribal | Pickyside | arabic digits |
 | 4 | "I don't care" | Maskdown | Maskdown | Maskdown | Soulside Betrayed | roman numerals |
 | 5 | "I REALLY don't care" | Bagel Fat One | Bagel Fat One | Bagel Fat One | Bagel Fat One | arabic digits, Bagel Fat One |
 
 Rules:
 - Fonts apply to as much text as possible per tier. Tier 4 must be genuinely hard to navigate but possible; tier 5 is fully readable and maximally ridiculous.
 - **Cyrillic coverage unverified for all five fonts** — verify each; expected mostly Latin-only. Per-language fallback map (UA column) required before implementation.
-- **Licenses:** Pickyside, Soulside Betrayed, Arathos, Maskdown are Fontspace downloads — often personal-use only; verify each before shipping. Bagel Fat One is Google Fonts (OFL) — safe.
-- Base body sans (T1–T2) still TBD.
+- **Licenses:** Pickyside, Soulside Betrayed, Groovy Tribal, Maskdown are Fontspace downloads (Groovy Tribal file is marked freeware non-commercial, demo build) — owner waived verification for now; revisit at store prep. Bagel Fat One is Google Fonts (OFL) — safe. Arathos dropped: demo file renders every letter as the same X glyph.
+- Base body sans (T1–T2): Pickyside (owner decision 2026-07-12; TBD resolved).
 
 **Implementation (2026-07-12, Plan 6):** all five families ship — four Fontspace files in `assets/fonts/` (owner decision: license verification waived), Bagel Fat One via `@expo-google-fonts/bagel-fat-one` (OFL). Runtime-loaded via `useAppFonts()` (expo-font), registered under the exact keys in `brutality.ts`. **Cyrillic coverage verified: zero in all four Fontspace fonts** — UA text falls back to the system font per-glyph, which is the accepted per-language fallback map. Maskdown also lacks digits (numerals ride the body slot). Applied so far: logo + display + label slots (home logo/title, screen titles, feud header, deck card name, GrimButton labels, self-demonstrating BrutalityPicker rows). Tier state lives in `BrutalityProvider` (reads `profiles.brutality_tier`, flips live on settings save). NOT yet applied: body slot, roman numerals (T4), dividers/tilt/radii mutations — Plan 6 leftovers.
 

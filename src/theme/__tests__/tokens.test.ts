@@ -10,14 +10,14 @@ describe('tokens', () => {
   });
   it('has the normative palette', () => {
     expect(colors.bone).toBe('#e8e4da');
-    expect(colors.ink).toBe('#0a0510');
+    expect(colors.ink).toBe('#0c0b0d');
     expect(colors.blood).toBe('#c9203a');
     expect(colors.venom).toBe('#8a3aa8');
   });
   it('pins the full palette to design-system spec §1', () => {
     expect(colors).toEqual({
       void: '#060507',
-      ink: '#0a0510',
+      ink: '#0c0b0d',
       crypt: '#100a1a',
       cryptRaised: '#140d21',
       bone: '#e8e4da',
@@ -33,7 +33,7 @@ describe('tokens', () => {
   });
   it('pins the semantic mapping to design-system spec §1', () => {
     expect(semantic).toEqual({
-      bg: '#0a0510', // ink
+      bg: '#0c0b0d', // ink
       surface: '#100a1a', // crypt
       border: '#3a2454', // venom-dim
       text: '#e8e4da', // bone

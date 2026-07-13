@@ -14,7 +14,7 @@ export function useAppFonts(): boolean {
   const [loaded] = useFonts({
     Pickyside: require('../../assets/fonts/Pickyside.otf'),
     SoulsideBetrayed: require('../../assets/fonts/SoulsideBetrayed.ttf'),
-    Arathos: require('../../assets/fonts/Arathos.otf'),
+    GroovyTribal: require('../../assets/fonts/GroovyTribal.ttf'),
     Maskdown: require('../../assets/fonts/Maskdown.otf'),
     BagelFatOne: BagelFatOne_400Regular,
   });
