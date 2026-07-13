@@ -32,7 +32,6 @@ export default function FeudScreen() {
   const { session } = useSession();
   const { font, tier } = useBrutality();
   const body = { fontFamily: font('body') };
-  const label = { fontFamily: font('label') };
   const myId = session?.user.id ?? '';
 
   const [feud, setFeud] = useState<FeudRow | null>(null);
@@ -150,8 +149,11 @@ export default function FeudScreen() {
 
   return (
     <View style={styles.root}>
-      <Pressable style={styles.safetyMenu} onPress={() => setSafetyOpen(true)}>
-        <Text style={styles.safetyMenuText}>{t('safety.menu')}</Text>
+      <Pressable style={[styles.glassBtn, styles.glassLeft]} onPress={() => router.back()}>
+        <Text style={styles.glassGlyph}>←</Text>
+      </Pressable>
+      <Pressable style={[styles.glassBtn, styles.glassRight]} onPress={() => setSafetyOpen(true)}>
+        <Text style={styles.glassGlyph}>{t('safety.menu')}</Text>
       </Pressable>
       <BrutalText text={opponentName} font={font('display')} style={styles.header} />
       {feud.is_arch && (
@@ -214,7 +216,7 @@ export default function FeudScreen() {
       )}
       {taunts.length > 0 && (
         <>
-          <Text style={[styles.chronicleTitle, label]}>{t('forge.missives')}</Text>
+          <BrutalText text={t('forge.missives')} font={font('label')} align="left" style={styles.chronicleTitle} />
           <View style={styles.missives}>
             {taunts.slice(0, 5).map((tr) => {
               const kit = tauntKits.get(tr.template_id);
@@ -232,7 +234,7 @@ export default function FeudScreen() {
         </>
       )}
       <SigilDivider />
-      <Text style={[styles.chronicleTitle, label]}>{t('feud.chronicle')}</Text>
+      <BrutalText text={t('feud.chronicle')} font={font('label')} align="left" style={styles.chronicleTitle} />
       <FlatList
         data={[...entries].reverse()}
         keyExtractor={(e) => e.id}
@@ -253,7 +255,6 @@ export default function FeudScreen() {
           );
         }}
       />
-      <GrimButton label={t('common.cancel')} variant="ghost" onPress={() => router.back()} />
 
       <Modal visible={logOpen} transparent animationType="fade" onRequestClose={() => setLogOpen(false)}>
         <Pressable style={styles.modalScrim} onPress={Keyboard.dismiss}>
@@ -339,8 +340,16 @@ export default function FeudScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: semantic.bg, padding: spacing[4], paddingTop: spacing[5] * 2, gap: spacing[1] },
-  safetyMenu: { position: 'absolute', top: spacing[5] * 1.5, right: spacing[4] },
-  safetyMenuText: { color: colors.smoke, fontSize: 22 },
+  glassBtn: {
+    position: 'absolute', top: spacing[5] * 1.5, zIndex: 10,
+    width: 44, height: 44, borderRadius: 22,
+    backgroundColor: 'rgba(232,228,218,0.08)',
+    borderWidth: 1, borderColor: 'rgba(232,228,218,0.15)',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  glassLeft: { left: spacing[4] },
+  glassRight: { right: spacing[4] },
+  glassGlyph: { color: colors.bone, fontSize: 20 },
   header: { color: colors.bone, fontSize: 22, textAlign: 'center', letterSpacing: 1 },
   subheader: { color: colors.smoke, fontSize: 13, textAlign: 'center' },
   archBadge: { color: colors.blood, fontSize: 13, letterSpacing: 2, textAlign: 'center' },

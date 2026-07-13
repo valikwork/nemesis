@@ -22,7 +22,6 @@ export default function Profile() {
   const { session } = useSession();
   const { font } = useBrutality();
   const body = { fontFamily: font('body') };
-  const label = { fontFamily: font('label') };
   const uid = session?.user.id;
   const lang = i18n.language;
 
@@ -121,7 +120,7 @@ export default function Profile() {
       <Text style={styles.sigil}>{glyph}</Text>
       {persona != null && <BrutalText text={persona.nemesis_name} font={font('display')} style={styles.name} />}
 
-      <Text style={[styles.section, label]}>{t('settings.persona')}</Text>
+      <BrutalText text={t('settings.persona')} font={font('label')} style={styles.section} />
       <Text style={[styles.fieldLabel, body]}>{t('onboarding.catchphraseTitle')}</Text>
       <GrimInput value={catchphrase} onChangeText={setCatchphrase}
         placeholder={t('onboarding.catchphrasePlaceholder')}
@@ -135,7 +134,7 @@ export default function Profile() {
         disabled={validateCatchphrase(catchphrase) != null || validateBio(bio) != null} />
 
       <SigilDivider />
-      <Text style={[styles.section, label]}>{t('profile.ordealsTitle')}</Text>
+      <BrutalText text={t('profile.ordealsTitle')} font={font('label')} style={styles.section} />
       <Text style={[styles.hint, body]}>{t('profile.ordealsHint')}</Text>
       {error != null && <Text style={[styles.error, body]}>{error}</Text>}
       <View style={styles.list}>
@@ -156,7 +155,7 @@ export default function Profile() {
       <Modal visible={pickOpen} transparent animationType="fade" onRequestClose={() => setPickOpen(false)}>
         <View style={styles.modalScrim}>
           <View style={styles.modal}>
-            <Text style={[styles.section, label]}>{t('profile.addOrdeal')}</Text>
+            <BrutalText text={t('profile.addOrdeal')} font={font('label')} style={styles.section} />
             <ScrollView style={styles.pickScroll} contentContainerStyle={styles.list}>
               {available.map((o) => (
                 <Pressable key={o.id} style={styles.row}
@@ -173,7 +172,7 @@ export default function Profile() {
       <Modal visible={forgeOpen} transparent animationType="fade" onRequestClose={() => setForgeOpen(false)}>
         <View style={styles.modalScrim}>
           <View style={styles.modal}>
-            <Text style={[styles.section, label]}>{t('onboarding.forgeCta')}</Text>
+            <BrutalText text={t('onboarding.forgeCta')} font={font('label')} style={styles.section} />
             <Text style={[styles.fieldLabel, body]}>{t('onboarding.forgeNameLabel')}</Text>
             <GrimInput value={forgeName} onChangeText={setForgeName} placeholder="Yodeling"
               error={forgeName !== '' && validateOrdealName(forgeName) ? t(`validation.${validateOrdealName(forgeName)}`) : null} />

@@ -25,7 +25,6 @@ export default function Home() {
   const { session } = useSession();
   const { font } = useBrutality();
   const body = { fontFamily: font('body') };
-  const label = { fontFamily: font('label') };
   const router = useRouter();
   const [feuds, setFeuds] = useState<FeudWithMeta[]>([]);
   const [declares, setDeclares] = useState<DeclareBanner[]>([]);
@@ -37,7 +36,6 @@ export default function Home() {
 
   const load = useCallback(async () => {
     if (session == null) return;
-    setRefreshing(true);
     try {
       const [feudRows, declareRows, matchRows] = await Promise.all([
         listFeudsWithMeta(supabase, session.user.id),
@@ -55,9 +53,14 @@ export default function Home() {
       }
       setDeclares(incoming.map((d) => ({ ...d, declarer_name: names.get(d.declarer) ?? '???' })));
     } finally {
-      setRefreshing(false);
+      setRefreshing(false); // pull-to-refresh only; initial load never shows the spinner
     }
   }, [session?.user.id]);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    load();
+  }, [load]);
 
   useFocusEffect(
     useCallback(() => {
@@ -115,7 +118,7 @@ export default function Home() {
         data={active}
         keyExtractor={(f) => f.feud.id}
         contentContainerStyle={styles.list}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={load} tintColor={colors.blood} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.blood} />}
         renderItem={({ item }) => (
           <FeudRowCard item={item} onPress={() => router.push(`/feuds/${item.feud.id}`)} />
         )}
@@ -148,7 +151,7 @@ export default function Home() {
             ))}
             {proposed.length > 0 && (
               <View style={styles.sectionWrap}>
-                <Text style={[styles.sectionTitle, label]}>{t('home.gauntletTitle')}</Text>
+                <BrutalText text={t('home.gauntletTitle')} font={font('label')} align="left" style={styles.sectionTitle} />
                 {proposed.map((item) => {
                   const mine = item.feud.proposed_by === myId;
                   return (
@@ -184,7 +187,7 @@ export default function Home() {
           buried.length > 0 ? (
             <View style={styles.buriedWrap}>
               <SigilDivider />
-              <Text style={[styles.buriedTitle, label]}>{t('home.buried')}</Text>
+              <BrutalText text={t('home.buried')} font={font('label')} align="left" style={styles.buriedTitle} />
               {buried.map((item) => (
                 <FeudRowCard key={item.feud.id} item={item} onPress={() => router.push(`/feuds/${item.feud.id}`)} />
               ))}

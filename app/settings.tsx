@@ -21,7 +21,6 @@ export default function Settings() {
   const { session } = useSession();
   const { font, setLevel } = useBrutality();
   const body = { fontFamily: font('body') };
-  const label = { fontFamily: font('label') };
   const uid = session?.user.id;
 
   const [realName, setRealName] = useState('');
@@ -145,7 +144,7 @@ export default function Settings() {
       <ScrollView style={styles.scroll} contentContainerStyle={styles.root}>
         <BrutalText text={t('settings.title')} font={font('display')} style={styles.title} />
 
-        <Text style={[styles.section, label]}>{t('settings.identityTitle')}</Text>
+        <BrutalText text={t('settings.identityTitle')} font={font('label')} align="left" style={styles.section} />
         <Text style={[styles.identityHint, body]}>{t('settings.identityHint')}</Text>
         <Text style={[styles.fieldLabel, body]}>{t('settings.realName')}</Text>
         <GrimInput value={realName} onChangeText={setRealName} placeholder="…" />
@@ -162,7 +161,7 @@ export default function Settings() {
           </Text>
         </Pressable>
 
-        <Text style={[styles.section, label]}>{t('settings.language')}</Text>
+        <BrutalText text={t('settings.language')} font={font('label')} align="left" style={styles.section} />
         <View style={styles.langRow}>
           {(['en', 'uk'] as const).map((l) => (
             <Pressable key={l} onPress={() => switchLanguage(l)}
@@ -174,7 +173,7 @@ export default function Settings() {
           ))}
         </View>
 
-        <Text style={[styles.section, label]}>{t('brutality.title')}</Text>
+        <BrutalText text={t('brutality.title')} font={font('label')} align="left" style={styles.section} />
         <Pressable onPress={() => setTierOpen(true)} style={styles.select}>
           <View style={styles.selectText}>
             <Text style={[styles.selectName, body]}>{t(currentTier.nameKey)}</Text>
@@ -188,7 +187,7 @@ export default function Settings() {
         <GrimButton label={t('settings.save')} onPress={save} disabled={busy} />
         <GrimButton label={t('settings.signOut')} variant="ghost" onPress={signOut} />
 
-        <Text style={[styles.section, label, styles.danger]}>{t('settings.dangerZone')}</Text>
+        <BrutalText text={t('settings.dangerZone')} font={font('label')} align="left" style={[styles.section, styles.danger]} />
         <GrimButton label={t('settings.deleteAccount')} variant="ghost" onPress={() => setEraseOpen(true)} />
       </ScrollView>
 
