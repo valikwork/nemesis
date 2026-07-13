@@ -5,6 +5,7 @@ import { ordealLabel, ordealUnit } from '../onboarding/ordeal-labels';
 import { SIGILS } from '../onboarding/sigils';
 import { colors, radii, spacing } from '../theme/tokens';
 import { useBrutality } from '../theme/brutality-context';
+import { BrutalText } from './BrutalText';
 import { formatNumeral } from '../theme/numerals';
 
 interface Props {
@@ -23,7 +24,7 @@ export function FeudRowCard({ item, onPress }: Props) {
     <Pressable onPress={onPress} style={[styles.card, { borderRadius: radii.card * tier.radiiScale }, ended && styles.ended]}>
       <Text style={styles.sigil}>{glyph}</Text>
       <View style={styles.mid}>
-        <Text style={[styles.opponent, { fontFamily: font('display') }]}>{item.opponent.nemesis_name}</Text>
+        <BrutalText text={item.opponent.nemesis_name} font={font('display')} align="left" style={styles.opponent} />
         <Text style={[styles.ordeal, body]}>
           {ordealLabel(item.ordeal, i18n.language)}
           {item.feud.mode === 'showdown' && item.feud.goal_value != null
