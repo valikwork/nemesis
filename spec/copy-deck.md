@@ -58,7 +58,7 @@
 | summon_cta           | Summon a friend                                            | Поклич друга                                          |
 | summon_share_text    | I challenge thee. Download Nemesis and answer for thyself. | Я кидаю тобі виклик. Завантажуй Nemesis і відповідай. |
 | summon_pending       | The summons is sent. Awaiting thy foe.                     | Поклик надіслано. Чекаємо на твого ворога.            |
-| summon_revoke        | Withdraw summons                                           | Відкликати поклик                                     |
+| summon_revoke        | Withdraw                                                   | Відкликати                                            |
 | invite_landing_title | {name} names thee nemesis.                                 | {name} називає тебе своїм ворогом.                    |
 | invite_landing_cta   | Answer the challenge                                       | Прийняти виклик                                       |
 | invite_dead          | This summons has faded into legend.                        | Цей поклик розчинився в історії.                      |
