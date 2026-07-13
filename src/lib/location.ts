@@ -25,11 +25,23 @@ export async function optIntoLocation(client: SupabaseClient, userId: string): P
 }
 
 export async function hasLocation(client: SupabaseClient, userId: string): Promise<boolean> {
+  return (await getRadius(client, userId)) != null;
+}
+
+export async function getRadius(client: SupabaseClient, userId: string): Promise<number | null> {
   const { data, error } = await client
     .from('profiles')
     .select('radius_km')
     .eq('id', userId)
     .single();
   if (error) throw error;
-  return data.radius_km != null;
+  return data.radius_km;
+}
+
+// contract bounds: 1..500
+export const RADIUS_STEPS = [5, 10, 25, 50, 100, 250, 500] as const;
+
+export async function setRadius(client: SupabaseClient, userId: string, km: number): Promise<void> {
+  const { error } = await client.from('profiles').update({ radius_km: km }).eq('id', userId);
+  if (error) throw error;
 }

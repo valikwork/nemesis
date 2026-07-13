@@ -177,7 +177,7 @@ More templates added over time; each language's banks are authored independently
 | brutality_3      | Hardcore                                                                 | Хардкор                                                               |
 | brutality_3_desc | Legibility is for the weak.                                              | Розбірливість — для слабких.                                          |
 | brutality_4      | I don't care                                                             | Мені начхати                                                          |
-| brutality_4_desc | I don't care                                                         | Ти страждатимеш                                                       |
+| brutality_4_desc | You will suffer.                                                         | Ти страждатимеш                                                       |
 | brutality_5      | I REALLY don't care                                                      | Мені СПРАВДІ начхати                                                  |
 | brutality_5_desc | The most brutal choice of all.                                           | Найбрутальніший вибір з усіх.                                         |
 | delete_account   | Erase my legend                                                          | Стерти мою легенду                                                    |
@@ -194,11 +194,11 @@ Placement of `coexist_joke`: onboarding final step or About screen — decide at
 | Key | EN | UA (draft) |
 | --- | --- | --- |
 | settings_title | The inner sanctum | Внутрішнє святилище |
-| settings_sign_out | Leave the gate | Полишити браму |
+| settings_sign_out | Leave the app | Вийти з застосунку |
 | settings_language | Tongue | Мова |
 | settings_persona | Thy persona | Твоя подоба |
-| settings_save | Carve it | Закарбувати |
-| settings_saved | Carved. | Закарбовано. |
+| settings_save | Save | Зберегти |
+| settings_saved | Saved. | Збережено. |
 | settings_danger_zone | Point of no return | Точка неповернення |
 | settings_erase_body | Thy chronicle, feuds, and name shall be wiped from all records. Forever. | Твій літопис, ворожнечі та ім'я буде стерто з усіх записів. Назавжди. |
 | safety_menu | ⋯ | ⋯ |

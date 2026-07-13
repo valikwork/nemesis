@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../../src/lib/supabase';
 import { useSession } from '../../src/auth/session';
 import { getDeck, swipeRival, proposeFeud, type DeckCard } from '../../src/lib/deck';
-import { optIntoLocation, hasLocation } from '../../src/lib/location';
+import { optIntoLocation, getRadius, setRadius, RADIUS_STEPS } from '../../src/lib/location';
 import { notifyProfile } from '../../src/lib/push';
 import { ordealLabel } from '../../src/onboarding/ordeal-labels';
 import { SIGILS } from '../../src/onboarding/sigils';
@@ -28,6 +28,7 @@ export default function Deck() {
   const [mySigil, setMySigil] = useState<string | null>(null);
 
   const [gate, setGate] = useState<Gate>('checking');
+  const [radius, setRadiusState] = useState<number | null>(null);
   const [cards, setCards] = useState<DeckCard[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,7 +52,9 @@ export default function Deck() {
       try {
         const { data } = await supabase.from('profiles').select('mask_avatar_id').eq('id', myId).single();
         setMySigil(data?.mask_avatar_id ?? null);
-        if (await hasLocation(supabase, myId)) {
+        const km = await getRadius(supabase, myId);
+        if (km != null) {
+          setRadiusState(km);
           setGate('open');
           await load();
         } else {
@@ -68,6 +71,7 @@ export default function Deck() {
     setError(null);
     try {
       if (await optIntoLocation(supabase, myId)) {
+        setRadiusState(await getRadius(supabase, myId));
         setGate('open');
         await load();
       }
@@ -92,6 +96,21 @@ export default function Deck() {
       setError(errMessage(e));
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function stepRadius(dir: -1 | 1) {
+    if (radius == null) return;
+    const idx = RADIUS_STEPS.findIndex((s) => s >= radius);
+    const cur = idx === -1 ? RADIUS_STEPS.length - 1 : idx;
+    const next = RADIUS_STEPS[Math.min(RADIUS_STEPS.length - 1, Math.max(0, cur + dir))];
+    if (next === radius) return;
+    setRadiusState(next);
+    try {
+      await setRadius(supabase, myId, next);
+      await load();
+    } catch (e) {
+      setError(errMessage(e));
     }
   }
 
@@ -133,6 +152,18 @@ export default function Deck() {
   return (
     <View style={styles.root}>
       <BrutalText text={t('deck.tab')} font={font('display')} style={styles.title} />
+
+      {gate === 'open' && radius != null && (
+        <View style={styles.radiusRow}>
+          <Pressable onPress={() => stepRadius(-1)} hitSlop={8}>
+            <Text style={styles.radiusStep}>−</Text>
+          </Pressable>
+          <Text style={styles.radiusLabel}>{t('deck.radiusLabel', { km: radius })}</Text>
+          <Pressable onPress={() => stepRadius(1)} hitSlop={8}>
+            <Text style={styles.radiusStep}>+</Text>
+          </Pressable>
+        </View>
+      )}
 
       {gate === 'ask' && (
         <View style={styles.gate}>
@@ -197,6 +228,9 @@ export default function Deck() {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: semantic.bg, padding: spacing[4], paddingTop: spacing[5] * 2, gap: spacing[2] },
   title: { color: colors.bone, fontSize: 22, textAlign: 'center', letterSpacing: 1 },
+  radiusRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: spacing[4] },
+  radiusStep: { color: colors.venom, fontSize: 24, paddingHorizontal: spacing[2] },
+  radiusLabel: { color: colors.smoke, fontSize: 13, letterSpacing: 1 },
   gate: { flex: 1, justifyContent: 'center', gap: spacing[3] },
   gateText: { color: colors.ash, fontSize: 15, textAlign: 'center', lineHeight: 22 },
   card: {

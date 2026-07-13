@@ -90,20 +90,20 @@ export default function Summon() {
         <View style={styles.pendingWrap}>
           <Text style={styles.pendingTitle}>{t('home.pendingTitle')}</Text>
           {pending.map((inv) => (
-            <View key={inv.id} style={styles.pendingRow}>
+            <View key={inv.id} style={styles.pendingCard}>
               <Text style={styles.pendingText}>
                 {ordealLabel(inv.ordeal, i18n.language)}
-                {inv.mode === 'showdown' ? ` · ${inv.goal_value}` : ''}
+                {inv.mode === 'showdown' ? ` · ${t('feud.modeShowdown', { goal: inv.goal_value })}` : ''}
               </Text>
               <View style={styles.pendingActions}>
-                <Pressable
-                  onPress={() => Share.share({ message: `${t('summon.shareText')}\nnemesis://feud/${inv.code}` })}
-                >
-                  <Text style={styles.reshare}>{t('summon.reshare')}</Text>
-                </Pressable>
-                <Pressable onPress={async () => { await revokeInvite(supabase, inv.id); reload(); }}>
-                  <Text style={styles.revoke}>{t('summon.revoke')}</Text>
-                </Pressable>
+                <View style={styles.pendingBtn}>
+                  <GrimButton label={t('summon.reshare')} variant="ghost"
+                    onPress={() => Share.share({ message: `${t('summon.shareText')}\nnemesis://feud/${inv.code}` })} />
+                </View>
+                <View style={styles.pendingBtn}>
+                  <GrimButton label={t('summon.revoke')} variant="ghost"
+                    onPress={async () => { await revokeInvite(supabase, inv.id); reload(); }} />
+                </View>
               </View>
             </View>
           ))}
@@ -130,9 +130,11 @@ const styles = StyleSheet.create({
   error: { color: colors.blood, fontSize: 13 },
   pendingWrap: { marginTop: spacing[2], gap: spacing[1] },
   pendingTitle: { color: colors.smoke, fontSize: 12, letterSpacing: 2, textTransform: 'uppercase' },
-  pendingRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  pendingText: { color: colors.ash, fontSize: 13, flexShrink: 1 },
-  pendingActions: { flexDirection: 'row', gap: spacing[3] },
-  reshare: { color: colors.venom, fontSize: 13 },
-  revoke: { color: colors.blood, fontSize: 13 },
+  pendingCard: {
+    backgroundColor: colors.crypt, borderWidth: 1, borderColor: colors.venomDim,
+    borderRadius: radii.card, padding: spacing[3], gap: spacing[2],
+  },
+  pendingText: { color: colors.bone, fontSize: 14 },
+  pendingActions: { flexDirection: 'row', gap: spacing[2] },
+  pendingBtn: { flex: 1 },
 });

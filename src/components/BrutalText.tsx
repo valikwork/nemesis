@@ -5,6 +5,7 @@ interface Props {
   text: string;
   font: string | undefined; // resolved family (useBrutality().font(slot))
   style?: StyleProp<TextStyle>;
+  align?: 'left' | 'center'; // metal-mirror word row alignment
 }
 
 /**
@@ -14,10 +15,10 @@ interface Props {
  * - BagelFatOne: every letter gets its own bright party color.
  * - anything else: plain Text with the family applied.
  */
-export function BrutalText({ text, font, style }: Props) {
+export function BrutalText({ text, font, style, align = 'center' }: Props) {
   if (font === 'Maskdown') {
     return (
-      <View style={styles.wordRow}>
+      <View style={[styles.wordRow, align === 'left' && styles.wordRowLeft]}>
         {text.split(/\s+/).filter(Boolean).map((word, wi) => {
           const { left, right } = metalHalves(word);
           return (
@@ -50,6 +51,7 @@ export function BrutalText({ text, font, style }: Props) {
 
 const styles = StyleSheet.create({
   wordRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', columnGap: 10 },
+  wordRowLeft: { justifyContent: 'flex-start' },
   word: { flexDirection: 'row', alignItems: 'flex-end' },
   mirror: { transform: [{ scaleX: -1 }] },
   // the case-play IS the treatment — a parent textTransform must not undo it

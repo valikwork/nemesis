@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Pressable, Modal } from 'react-nati
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import * as ImagePicker from 'expo-image-picker';
+import { Image } from 'expo-image';
 import { supabase } from '../src/lib/supabase';
 import { useSession } from '../src/auth/session';
 import { setAppLanguage } from '../src/i18n';
@@ -23,6 +24,7 @@ export default function Settings() {
 
   const [realName, setRealName] = useState('');
   const [hasPortrait, setHasPortrait] = useState(false);
+  const [portraitUrl, setPortraitUrl] = useState<string | null>(null);
   const [tier, setTier] = useState(1);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -39,10 +41,15 @@ export default function Settings() {
         setTier(data.brutality_tier ?? 1);
       });
     supabase.from('unmasked_identities').select('real_name, photo_url').eq('profile_id', uid).maybeSingle()
-      .then(({ data }) => {
+      .then(async ({ data }) => {
         if (data == null) return;
         setRealName(data.real_name ?? '');
         setHasPortrait(data.photo_url != null);
+        if (data.photo_url != null) {
+          const { data: signed } = await supabase.storage.from('unmask-photos')
+            .createSignedUrl(data.photo_url, 3600);
+          setPortraitUrl(signed?.signedUrl ?? null);
+        }
       });
     return () => {
       if (savedTimer.current != null) clearTimeout(savedTimer.current);
@@ -93,6 +100,8 @@ export default function Settings() {
         .upsert({ profile_id: uid, photo_url: path });
       if (ie) throw ie;
       setHasPortrait(true);
+      const { data: signed } = await supabase.storage.from('unmask-photos').createSignedUrl(path, 3600);
+      setPortraitUrl(signed?.signedUrl ?? null);
       flashSaved();
     } catch (e) {
       setError(errMessage(e));
@@ -143,6 +152,13 @@ export default function Settings() {
         <Text style={styles.identityHint}>{t('settings.identityHint')}</Text>
         <Text style={styles.fieldLabel}>{t('settings.realName')}</Text>
         <GrimInput value={realName} onChangeText={setRealName} placeholder="…" />
+        <Pressable onPress={pickPortrait} disabled={busy} style={styles.portraitSlot}>
+          {portraitUrl != null ? (
+            <Image source={{ uri: portraitUrl }} style={styles.portrait} contentFit="cover" />
+          ) : (
+            <Text style={styles.portraitEmpty}>✠</Text>
+          )}
+        </Pressable>
         <Pressable onPress={pickPortrait} disabled={busy}>
           <Text style={styles.portraitCta}>
             {hasPortrait ? t('settings.identityPhotoSet') : t('settings.identityPhoto')}
@@ -188,7 +204,7 @@ export default function Settings() {
                 onPress={() => { setTier(bt.level); setTierOpen(false); }}
                 style={[styles.tierRow, tier === bt.level && styles.tierRowOn]}>
                 {/* self-demonstrating: each row wears its own tier's display font */}
-                <BrutalText text={t(bt.nameKey)} font={bt.fonts.display} style={[styles.tierName, tier === bt.level && styles.tierNameOn]} />
+                <BrutalText text={t(bt.nameKey)} font={bt.fonts.display} align="left" style={[styles.tierName, tier === bt.level && styles.tierNameOn]} />
                 <Text style={styles.tierDesc}>{t(bt.descKey)}</Text>
               </Pressable>
             ))}
@@ -226,6 +242,13 @@ const styles = StyleSheet.create({
   fieldLabel: { color: colors.ash, fontSize: 12, letterSpacing: 1 },
   identityHint: { color: colors.smoke, fontSize: 12 },
   portraitCta: { color: colors.venom, fontSize: 13 },
+  portraitSlot: {
+    width: 96, height: 96, borderRadius: 48, alignSelf: 'flex-start',
+    backgroundColor: colors.crypt, borderWidth: 1, borderColor: colors.venomDim,
+    alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
+  },
+  portrait: { width: 96, height: 96 },
+  portraitEmpty: { color: colors.smoke, fontSize: 32 },
   langRow: { flexDirection: 'row', gap: spacing[2] },
   langChip: { flex: 1, alignItems: 'center', paddingVertical: spacing[2], borderRadius: radii.button, borderWidth: 1, borderColor: colors.venomDim, backgroundColor: colors.crypt },
   langChipOn: { borderColor: colors.blood, backgroundColor: colors.bloodMist },
