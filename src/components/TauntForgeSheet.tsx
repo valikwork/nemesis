@@ -5,6 +5,8 @@ import { supabase } from '../lib/supabase';
 import { fetchTauntKit, assembleTaunt, sendTaunt, type TauntTemplate, type TauntBankWord } from '../lib/taunts';
 import { GrimButton } from './GrimButton';
 import { colors, radii, spacing } from '../theme/tokens';
+import { useBrutality } from '../theme/brutality-context';
+import { BrutalText } from './BrutalText';
 import { errMessage } from '../lib/err';
 
 interface Props {
@@ -16,6 +18,8 @@ interface Props {
 
 export function TauntForgeSheet({ feudId, visible, onClose, onSent }: Props) {
   const { t, i18n } = useTranslation();
+  const { font } = useBrutality();
+  const body = { fontFamily: font('body') };
   const [template, setTemplate] = useState<TauntTemplate | null>(null);
   const [bySlot, setBySlot] = useState<TauntBankWord[][]>([]);
   const [banks, setBanks] = useState<TauntBankWord[]>([]);
@@ -54,8 +58,8 @@ export function TauntForgeSheet({ feudId, visible, onClose, onSent }: Props) {
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.scrim}>
         <View style={styles.sheet}>
-          <Text style={styles.title}>{t('forge.title')}</Text>
-          <Text style={styles.subtitle}>{t('forge.subtitle')}</Text>
+          <BrutalText text={t('forge.title')} font={font('display')} style={styles.title} />
+          <Text style={[styles.subtitle, body]}>{t('forge.subtitle')}</Text>
           <View style={styles.columns}>
             {bySlot.map((words, slot) => (
               <ScrollView key={slot} style={styles.column} contentContainerStyle={styles.columnInner}>
@@ -71,7 +75,7 @@ export function TauntForgeSheet({ feudId, visible, onClose, onSent }: Props) {
                       }}
                       style={[styles.word, on && styles.wordOn]}
                     >
-                      <Text style={[styles.wordText, on && styles.wordTextOn]}>{w.word}</Text>
+                      <Text style={[styles.wordText, body, on && styles.wordTextOn]}>{w.word}</Text>
                     </Pressable>
                   );
                 })}
@@ -80,11 +84,11 @@ export function TauntForgeSheet({ feudId, visible, onClose, onSent }: Props) {
           </View>
           {template != null && (
             <View style={styles.preview}>
-              <Text style={styles.previewLabel}>{t('forge.preview')}</Text>
-              <Text style={styles.previewText}>{assembleTaunt(template, banks, picks)}</Text>
+              <Text style={[styles.previewLabel, body]}>{t('forge.preview')}</Text>
+              <Text style={[styles.previewText, body]}>{assembleTaunt(template, banks, picks)}</Text>
             </View>
           )}
-          {error != null && <Text style={styles.error}>{error}</Text>}
+          {error != null && <Text style={[styles.error, body]}>{error}</Text>}
           <GrimButton label={t('forge.send')} onPress={send} disabled={busy || template == null} />
           <GrimButton label={t('common.cancel')} variant="ghost" onPress={onClose} />
         </View>

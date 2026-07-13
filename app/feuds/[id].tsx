@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Modal, Pressable } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Modal, Pressable, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import * as ImagePicker from 'expo-image-picker';
@@ -32,6 +32,7 @@ export default function FeudScreen() {
   const { session } = useSession();
   const { font, tier } = useBrutality();
   const body = { fontFamily: font('body') };
+  const label = { fontFamily: font('label') };
   const myId = session?.user.id ?? '';
 
   const [feud, setFeud] = useState<FeudRow | null>(null);
@@ -162,11 +163,11 @@ export default function FeudScreen() {
       {archNote != null && <Text style={styles.archNote}>{archNote}</Text>}
       {ended && (
         <View style={styles.verdict}>
-          <Text style={[styles.verdictText, iWon ? styles.won : styles.lost]}>
+          <Text style={[styles.verdictText, { fontFamily: font('display') }, iWon ? styles.won : styles.lost]}>
             {iWon ? t('feud.won') : t('feud.lost')}
           </Text>
           {iWon && rumorPct > 0 && (
-            <Text style={styles.rumorRatio}>{t('feud.victoryRumorRatio', { pct: rumorPct })}</Text>
+            <Text style={[styles.rumorRatio, body]}>{t('feud.victoryRumorRatio', { pct: rumorPct })}</Text>
           )}
         </View>
       )}
@@ -213,7 +214,7 @@ export default function FeudScreen() {
       )}
       {taunts.length > 0 && (
         <>
-          <Text style={styles.chronicleTitle}>{t('forge.missives')}</Text>
+          <Text style={[styles.chronicleTitle, label]}>{t('forge.missives')}</Text>
           <View style={styles.missives}>
             {taunts.slice(0, 5).map((tr) => {
               const kit = tauntKits.get(tr.template_id);
@@ -221,7 +222,7 @@ export default function FeudScreen() {
               return (
                 <Text
                   key={tr.id}
-                  style={[styles.missive, mine ? styles.missiveMine : styles.missiveTheirs]}
+                  style={[styles.missive, body, mine ? styles.missiveMine : styles.missiveTheirs]}
                 >
                   {kit != null ? assembleTaunt(kit.template, kit.banks, tr.picks) : '…'}
                 </Text>
@@ -231,7 +232,7 @@ export default function FeudScreen() {
         </>
       )}
       <SigilDivider />
-      <Text style={styles.chronicleTitle}>{t('feud.chronicle')}</Text>
+      <Text style={[styles.chronicleTitle, label]}>{t('feud.chronicle')}</Text>
       <FlatList
         data={[...entries].reverse()}
         keyExtractor={(e) => e.id}
@@ -241,7 +242,7 @@ export default function FeudScreen() {
           const rumor = item.proof_url == null;
           return (
             <View style={[styles.entry, rumor && styles.entryRumor]}>
-              <Text style={[styles.entryWho, mine ? styles.entryMine : styles.entryTheirs]}>
+              <Text style={[styles.entryWho, body, mine ? styles.entryMine : styles.entryTheirs]}>
                 {mine ? t('feud.you') : opponentName}
               </Text>
               <Text style={[styles.entryValue, body]}>
@@ -255,7 +256,8 @@ export default function FeudScreen() {
       <GrimButton label={t('common.cancel')} variant="ghost" onPress={() => router.back()} />
 
       <Modal visible={logOpen} transparent animationType="fade" onRequestClose={() => setLogOpen(false)}>
-        <View style={styles.modalScrim}>
+        <Pressable style={styles.modalScrim} onPress={Keyboard.dismiss}>
+          <KeyboardAvoidingView behavior="padding">
           <View style={styles.modal}>
             <BrutalText text={t('feud.logTitle')} font={font('display')} style={styles.header} />
             <Text style={[styles.fieldLabel, body]}>{t('feud.valueLabel')}{unit !== '' ? ` (${unit})` : ''}</Text>
@@ -268,11 +270,12 @@ export default function FeudScreen() {
               </Text>
             </Pressable>
             <Text style={[styles.proofHint, body]}>{t('feud.proofHint')}</Text>
-            {error != null && <Text style={styles.error}>{error}</Text>}
+            {error != null && <Text style={[styles.error, body]}>{error}</Text>}
             <GrimButton label={t('common.confirm')} onPress={submit} disabled={busy} />
             <GrimButton label={t('common.cancel')} variant="ghost" onPress={() => setLogOpen(false)} />
           </View>
-        </View>
+          </KeyboardAvoidingView>
+        </Pressable>
       </Modal>
 
       <TauntForgeSheet
@@ -288,10 +291,10 @@ export default function FeudScreen() {
             <Text style={styles.header}>
               {archConfirm === 'declare' ? t('arch.confirmTitle') : t('arch.title')}
             </Text>
-            <Text style={styles.archBody}>
+            <Text style={[styles.archBody, body]}>
               {archConfirm === 'declare' ? t('arch.confirmBody') : t('arch.dissolveConfirm')}
             </Text>
-            {error != null && <Text style={styles.error}>{error}</Text>}
+            {error != null && <Text style={[styles.error, body]}>{error}</Text>}
             <GrimButton
               label={t('common.confirm')}
               disabled={busy}

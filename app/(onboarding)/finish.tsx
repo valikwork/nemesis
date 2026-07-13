@@ -8,10 +8,14 @@ import { completeOnboarding } from '../../src/onboarding/complete';
 import { registerPushToken } from '../../src/lib/push';
 import { useSession } from '../../src/auth/session';
 import { colors, semantic, spacing } from '../../src/theme/tokens';
+import { useBrutality } from '../../src/theme/brutality-context';
+import { BrutalText } from '../../src/components/BrutalText';
 import { errMessage } from '../../src/lib/err';
 
 export default function FinishStep() {
   const { t } = useTranslation();
+  const { font } = useBrutality();
+  const body = { fontFamily: font('body') };
   const { refreshProfile } = useSession();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -38,9 +42,9 @@ export default function FinishStep() {
 
   return (
     <View style={styles.root}>
-      <Text style={styles.title}>{t('onboarding.sealTitle')}</Text>
-      <Text style={styles.body}>{t('tagline')}</Text>
-      {error != null && <Text style={styles.error}>{error}</Text>}
+      <BrutalText text={t('onboarding.sealTitle')} font={font('display')} style={styles.title} />
+      <Text style={[styles.body, body]}>{t('tagline')}</Text>
+      {error != null && <Text style={[styles.error, body]}>{error}</Text>}
       <GrimButton label={t('onboarding.sealCta')} onPress={seal} disabled={busy} />
     </View>
   );

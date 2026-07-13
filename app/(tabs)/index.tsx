@@ -25,6 +25,7 @@ export default function Home() {
   const { session } = useSession();
   const { font } = useBrutality();
   const body = { fontFamily: font('body') };
+  const label = { fontFamily: font('label') };
   const router = useRouter();
   const [feuds, setFeuds] = useState<FeudWithMeta[]>([]);
   const [declares, setDeclares] = useState<DeclareBanner[]>([]);
@@ -109,7 +110,7 @@ export default function Home() {
     <View style={styles.root}>
       <BrutalText text="NEMESIS" font={font('logo')} style={styles.logo} />
       <BrutalText text={t('home.title')} font={font('display')} style={styles.title} />
-      {error != null && <Text style={styles.error}>{error}</Text>}
+      {error != null && <Text style={[styles.error, body]}>{error}</Text>}
       <FlatList
         data={active}
         keyExtractor={(f) => f.feud.id}
@@ -125,10 +126,10 @@ export default function Home() {
                 <Text style={[styles.bannerText, body]}>{t('arch.received', { name: d.declarer_name })}</Text>
                 <View style={styles.bannerRow}>
                   <Pressable onPress={() => answerDeclare(d.id, false)}>
-                    <Text style={styles.bannerDecline}>{t('landing.decline')}</Text>
+                    <Text style={[styles.bannerDecline, body]}>{t('landing.decline')}</Text>
                   </Pressable>
                   <Pressable onPress={() => answerDeclare(d.id, true)}>
-                    <Text style={styles.bannerAccept}>{t('landing.accept')}</Text>
+                    <Text style={[styles.bannerAccept, body]}>{t('landing.accept')}</Text>
                   </Pressable>
                 </View>
               </View>
@@ -140,30 +141,30 @@ export default function Home() {
                 </Text>
                 <View style={styles.bannerRow}>
                   <Pressable onPress={() => setGloveFor(m)}>
-                    <Text style={styles.bannerAccept}>{t('deck.matchCta')}</Text>
+                    <Text style={[styles.bannerAccept, body]}>{t('deck.matchCta')}</Text>
                   </Pressable>
                 </View>
               </View>
             ))}
             {proposed.length > 0 && (
               <View style={styles.sectionWrap}>
-                <Text style={styles.sectionTitle}>{t('home.gauntletTitle')}</Text>
+                <Text style={[styles.sectionTitle, label]}>{t('home.gauntletTitle')}</Text>
                 {proposed.map((item) => {
                   const mine = item.feud.proposed_by === myId;
                   return (
                     <View key={item.feud.id} style={styles.gauntlet}>
                       <FeudRowCard item={item} onPress={() => {}} />
                       {mine ? (
-                        <Text style={styles.gauntletAwait}>
+                        <Text style={[styles.gauntletAwait, body]}>
                           {t('home.gauntletAwait', { name: item.opponent.nemesis_name })}
                         </Text>
                       ) : (
                         <View style={styles.bannerRow}>
                           <Pressable onPress={() => answerGauntlet(item.feud.id, false)}>
-                            <Text style={styles.bannerDecline}>{t('landing.decline')}</Text>
+                            <Text style={[styles.bannerDecline, body]}>{t('landing.decline')}</Text>
                           </Pressable>
                           <Pressable onPress={() => answerGauntlet(item.feud.id, true)}>
-                            <Text style={styles.bannerAccept}>{t('landing.accept')}</Text>
+                            <Text style={[styles.bannerAccept, body]}>{t('landing.accept')}</Text>
                           </Pressable>
                         </View>
                       )}
@@ -183,7 +184,7 @@ export default function Home() {
           buried.length > 0 ? (
             <View style={styles.buriedWrap}>
               <SigilDivider />
-              <Text style={styles.buriedTitle}>{t('home.buried')}</Text>
+              <Text style={[styles.buriedTitle, label]}>{t('home.buried')}</Text>
               {buried.map((item) => (
                 <FeudRowCard key={item.feud.id} item={item} onPress={() => router.push(`/feuds/${item.feud.id}`)} />
               ))}

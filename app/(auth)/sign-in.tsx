@@ -5,9 +5,13 @@ import { supabase } from '../../src/lib/supabase';
 import { GrimButton } from '../../src/components/GrimButton';
 import { GrimInput } from '../../src/components/GrimInput';
 import { colors, semantic, spacing } from '../../src/theme/tokens';
+import { useBrutality } from '../../src/theme/brutality-context';
+import { BrutalText } from '../../src/components/BrutalText';
 
 export default function SignIn() {
   const { t } = useTranslation();
+  const { font } = useBrutality();
+  const body = { fontFamily: font('body') };
   const [mode, setMode] = useState<'signIn' | 'signUp'>('signIn');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,15 +32,15 @@ export default function SignIn() {
 
   return (
     <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <Text style={styles.logo}>NEMESIS</Text>
-      <Text style={styles.welcome}>{t('onboarding.welcomeTitle')}</Text>
-      <Text style={styles.body}>{t('onboarding.welcomeBody')}</Text>
+      <BrutalText text="NEMESIS" font={font('logo')} style={styles.logo} />
+      <Text style={[styles.welcome, { fontFamily: font('display') }]}>{t('onboarding.welcomeTitle')}</Text>
+      <Text style={[styles.body, body]}>{t('onboarding.welcomeBody')}</Text>
       <View style={styles.form}>
         <GrimInput value={email} onChangeText={setEmail} placeholder="email@example.com"
           autoCapitalize="none" keyboardType="email-address" autoComplete="email" />
         <GrimInput value={password} onChangeText={setPassword} placeholder="••••••••"
           secureTextEntry autoComplete={mode === 'signIn' ? 'current-password' : 'new-password'} />
-        {error != null && <Text style={styles.error}>{error}</Text>}
+        {error != null && <Text style={[styles.error, body]}>{error}</Text>}
         <GrimButton
           label={mode === 'signIn' ? t('auth.enter') : t('auth.rise')}
           onPress={submit}

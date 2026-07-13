@@ -9,11 +9,15 @@ import { loadDraft, saveDraft } from '../../src/onboarding/draft';
 import { ordealLabel, type OrdealRow } from '../../src/onboarding/ordeal-labels';
 import { validateOrdealName, validateOrdealUnit } from '../../src/lib/validation';
 import { colors, radii, semantic, spacing } from '../../src/theme/tokens';
+import { useBrutality } from '../../src/theme/brutality-context';
+import { BrutalText } from '../../src/components/BrutalText';
 
 // Ordeals are interests, not accomplishments (owner, 2026-07-12): no skill
 // hint / prowess question anywhere — picking one is just "I beef about this".
 export default function OrdealsStep() {
   const { t, i18n } = useTranslation();
+  const { font } = useBrutality();
+  const body = { fontFamily: font('body') };
   const router = useRouter();
   const lang = i18n.language;
   const [rows, setRows] = useState<OrdealRow[]>([]);
@@ -70,10 +74,10 @@ export default function OrdealsStep() {
 
   return (
     <View style={styles.root}>
-      <Text style={styles.title}>{t('onboarding.ordealsTitle')}</Text>
-      <Text style={styles.subtitle}>{t('onboarding.ordealsSubtitle')}</Text>
+      <BrutalText text={t('onboarding.ordealsTitle')} font={font('display')} style={styles.title} />
+      <Text style={[styles.subtitle, body]}>{t('onboarding.ordealsSubtitle')}</Text>
       {selected.size >= 5 && (
-        <Text style={styles.limitNote}>{t('onboarding.ordealsLimit')}</Text>
+        <Text style={[styles.limitNote, body]}>{t('onboarding.ordealsLimit')}</Text>
       )}
       <FlatList
         data={rows}
@@ -83,7 +87,7 @@ export default function OrdealsStep() {
           const on = selected.has(item.id);
           return (
             <Pressable onPress={() => toggle(item.id)} style={[styles.row, on && styles.rowOn]}>
-              <Text style={[styles.rowLabel, on && styles.rowLabelOn]}>{ordealLabel(item, lang)}</Text>
+              <Text style={[styles.rowLabel, body, on && styles.rowLabelOn]}>{ordealLabel(item, lang)}</Text>
             </Pressable>
           );
         }}
@@ -94,23 +98,23 @@ export default function OrdealsStep() {
       <Modal visible={forgeOpen} transparent animationType="fade" onRequestClose={() => setForgeOpen(false)}>
         <View style={styles.modalScrim}>
           <View style={styles.modal}>
-            <Text style={styles.title}>{t('onboarding.forgeCta')}</Text>
-            <Text style={styles.fieldLabel}>{t('onboarding.forgeNameLabel')}</Text>
+            <BrutalText text={t('onboarding.forgeCta')} font={font('display')} style={styles.title} />
+            <Text style={[styles.fieldLabel, body]}>{t('onboarding.forgeNameLabel')}</Text>
             <GrimInput value={forgeName} onChangeText={setForgeName} placeholder="Yodeling"
               error={forgeName !== '' && validateOrdealName(forgeName) ? t(`validation.${validateOrdealName(forgeName)}`) : null} />
-            <Text style={styles.fieldLabel}>{t('onboarding.forgeUnitLabel')}</Text>
+            <Text style={[styles.fieldLabel, body]}>{t('onboarding.forgeUnitLabel')}</Text>
             <GrimInput value={forgeUnit} onChangeText={setForgeUnit} placeholder="yodels"
               error={forgeUnit !== '' && validateOrdealUnit(forgeUnit) ? t(`validation.${validateOrdealUnit(forgeUnit)}`) : null} />
-            <Text style={styles.fieldLabel}>{t('onboarding.forgeAggLabel')}</Text>
+            <Text style={[styles.fieldLabel, body]}>{t('onboarding.forgeAggLabel')}</Text>
             {(['sum', 'latest'] as const).map((agg) => (
               <Pressable key={agg} onPress={() => setForgeAgg(agg)}
                 style={[styles.aggRow, forgeAgg === agg && styles.aggRowOn]}>
-                <Text style={[styles.aggLabel, forgeAgg === agg && styles.aggLabelOn]}>
+                <Text style={[styles.aggLabel, body, forgeAgg === agg && styles.aggLabelOn]}>
                   {t(agg === 'sum' ? 'onboarding.aggSum' : 'onboarding.aggLatest')}
                 </Text>
               </Pressable>
             ))}
-            {forgeError != null && <Text style={styles.error}>{forgeError}</Text>}
+            {forgeError != null && <Text style={[styles.error, body]}>{forgeError}</Text>}
             <GrimButton label={t('common.confirm')} onPress={forge}
               disabled={validateOrdealName(forgeName) != null || validateOrdealUnit(forgeUnit) != null} />
             <GrimButton label={t('common.cancel')} variant="ghost" onPress={() => setForgeOpen(false)} />

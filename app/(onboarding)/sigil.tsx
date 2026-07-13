@@ -7,9 +7,12 @@ import { SigilTile } from '../../src/components/SigilTile';
 import { GrimButton } from '../../src/components/GrimButton';
 import { loadDraft, saveDraft } from '../../src/onboarding/draft';
 import { colors, semantic, spacing } from '../../src/theme/tokens';
+import { useBrutality } from '../../src/theme/brutality-context';
+import { BrutalText } from '../../src/components/BrutalText';
 
 export default function SigilStep() {
   const { t } = useTranslation();
+  const { font } = useBrutality();
   const router = useRouter();
   const [selected, setSelected] = useState<string | null>(null);
 
@@ -25,7 +28,7 @@ export default function SigilStep() {
 
   return (
     <View style={styles.root}>
-      <Text style={styles.title}>{t('onboarding.sigilTitle')}</Text>
+      <BrutalText text={t('onboarding.sigilTitle')} font={font('display')} style={styles.title} />
       <FlatList
         data={SIGILS}
         numColumns={4}

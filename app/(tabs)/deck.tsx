@@ -159,7 +159,7 @@ export default function Deck() {
           <Pressable onPress={() => stepRadius(-1)} hitSlop={8}>
             <Text style={styles.radiusStep}>−</Text>
           </Pressable>
-          <Text style={styles.radiusLabel}>{t('deck.radiusLabel', { km: radius })}</Text>
+          <Text style={[styles.radiusLabel, body]}>{t('deck.radiusLabel', { km: radius })}</Text>
           <Pressable onPress={() => stepRadius(1)} hitSlop={8}>
             <Text style={styles.radiusStep}>+</Text>
           </Pressable>

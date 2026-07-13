@@ -2,6 +2,8 @@ import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { SIGILS } from '../onboarding/sigils';
 import { colors, spacing } from '../theme/tokens';
+import { useBrutality } from '../theme/brutality-context';
+import { BrutalText } from './BrutalText';
 
 interface Props {
   mySigilId: string | null;
@@ -11,6 +13,7 @@ interface Props {
 
 export function MatchMoment({ mySigilId, theirSigilId, onDone }: Props) {
   const { t } = useTranslation();
+  const { font } = useBrutality();
   const glyph = (id: string | null) => SIGILS.find((s) => s.id === id)?.glyph ?? '✠';
   return (
     <Pressable style={styles.root} onPress={onDone}>
@@ -19,8 +22,8 @@ export function MatchMoment({ mySigilId, theirSigilId, onDone }: Props) {
         <Text style={styles.vs}>⚔︎</Text>
         <Text style={styles.sigil}>{glyph(theirSigilId)}</Text>
       </View>
-      <Text style={styles.title}>{t('match.title')}</Text>
-      <Text style={styles.begin}>{t('match.begin')}</Text>
+      <BrutalText text={t('match.title')} font={font('display')} style={styles.title} />
+      <Text style={[styles.begin, { fontFamily: font('body') }]}>{t('match.begin')}</Text>
     </Pressable>
   );
 }

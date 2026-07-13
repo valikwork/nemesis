@@ -22,6 +22,7 @@ export default function Profile() {
   const { session } = useSession();
   const { font } = useBrutality();
   const body = { fontFamily: font('body') };
+  const label = { fontFamily: font('label') };
   const uid = session?.user.id;
   const lang = i18n.language;
 
@@ -120,23 +121,23 @@ export default function Profile() {
       <Text style={styles.sigil}>{glyph}</Text>
       {persona != null && <BrutalText text={persona.nemesis_name} font={font('display')} style={styles.name} />}
 
-      <Text style={styles.section}>{t('settings.persona')}</Text>
-      <Text style={styles.fieldLabel}>{t('onboarding.catchphraseTitle')}</Text>
+      <Text style={[styles.section, label]}>{t('settings.persona')}</Text>
+      <Text style={[styles.fieldLabel, body]}>{t('onboarding.catchphraseTitle')}</Text>
       <GrimInput value={catchphrase} onChangeText={setCatchphrase}
         placeholder={t('onboarding.catchphrasePlaceholder')}
         error={validateCatchphrase(catchphrase) ? t(`validation.${validateCatchphrase(catchphrase)}`) : null} />
-      <Text style={styles.fieldLabel}>{t('onboarding.bioTitle')}</Text>
+      <Text style={[styles.fieldLabel, body]}>{t('onboarding.bioTitle')}</Text>
       <GrimInput value={bio} onChangeText={setBio} multiline numberOfLines={3}
         placeholder="…"
         error={validateBio(bio) ? t(`validation.${validateBio(bio)}`) : null} />
-      {saved && <Text style={styles.hint}>{t('settings.saved')}</Text>}
+      {saved && <Text style={[styles.hint, body]}>{t('settings.saved')}</Text>}
       <GrimButton label={t('settings.save')} onPress={savePersona}
         disabled={validateCatchphrase(catchphrase) != null || validateBio(bio) != null} />
 
       <SigilDivider />
-      <Text style={styles.section}>{t('profile.ordealsTitle')}</Text>
+      <Text style={[styles.section, label]}>{t('profile.ordealsTitle')}</Text>
       <Text style={[styles.hint, body]}>{t('profile.ordealsHint')}</Text>
-      {error != null && <Text style={styles.error}>{error}</Text>}
+      {error != null && <Text style={[styles.error, body]}>{error}</Text>}
       <View style={styles.list}>
         {mine.map((item) => (
           <View key={item.id} style={styles.row}>
@@ -146,16 +147,16 @@ export default function Profile() {
             </Pressable>
           </View>
         ))}
-        {mine.length === 0 && <Text style={styles.hint}>{t('profile.ordealsEmpty')}</Text>}
+        {mine.length === 0 && <Text style={[styles.hint, body]}>{t('profile.ordealsEmpty')}</Text>}
       </View>
-      {mine.length >= 5 && <Text style={styles.hint}>{t('onboarding.ordealsLimit')}</Text>}
+      {mine.length >= 5 && <Text style={[styles.hint, body]}>{t('onboarding.ordealsLimit')}</Text>}
       <GrimButton label={t('profile.addOrdeal')} onPress={() => setPickOpen(true)} disabled={mine.length >= 5} />
       <GrimButton label={t('onboarding.forgeCta')} variant="ghost" onPress={() => setForgeOpen(true)} disabled={mine.length >= 5} />
 
       <Modal visible={pickOpen} transparent animationType="fade" onRequestClose={() => setPickOpen(false)}>
         <View style={styles.modalScrim}>
           <View style={styles.modal}>
-            <Text style={styles.section}>{t('profile.addOrdeal')}</Text>
+            <Text style={[styles.section, label]}>{t('profile.addOrdeal')}</Text>
             <ScrollView style={styles.pickScroll} contentContainerStyle={styles.list}>
               {available.map((o) => (
                 <Pressable key={o.id} style={styles.row}
@@ -172,23 +173,23 @@ export default function Profile() {
       <Modal visible={forgeOpen} transparent animationType="fade" onRequestClose={() => setForgeOpen(false)}>
         <View style={styles.modalScrim}>
           <View style={styles.modal}>
-            <Text style={styles.section}>{t('onboarding.forgeCta')}</Text>
-            <Text style={styles.fieldLabel}>{t('onboarding.forgeNameLabel')}</Text>
+            <Text style={[styles.section, label]}>{t('onboarding.forgeCta')}</Text>
+            <Text style={[styles.fieldLabel, body]}>{t('onboarding.forgeNameLabel')}</Text>
             <GrimInput value={forgeName} onChangeText={setForgeName} placeholder="Yodeling"
               error={forgeName !== '' && validateOrdealName(forgeName) ? t(`validation.${validateOrdealName(forgeName)}`) : null} />
-            <Text style={styles.fieldLabel}>{t('onboarding.forgeUnitLabel')}</Text>
+            <Text style={[styles.fieldLabel, body]}>{t('onboarding.forgeUnitLabel')}</Text>
             <GrimInput value={forgeUnit} onChangeText={setForgeUnit} placeholder="yodels"
               error={forgeUnit !== '' && validateOrdealUnit(forgeUnit) ? t(`validation.${validateOrdealUnit(forgeUnit)}`) : null} />
-            <Text style={styles.fieldLabel}>{t('onboarding.forgeAggLabel')}</Text>
+            <Text style={[styles.fieldLabel, body]}>{t('onboarding.forgeAggLabel')}</Text>
             {(['sum', 'latest'] as const).map((agg) => (
               <Pressable key={agg} onPress={() => setForgeAgg(agg)}
                 style={[styles.aggRow, forgeAgg === agg && styles.aggRowOn]}>
-                <Text style={[styles.aggLabel, forgeAgg === agg && styles.aggLabelOn]}>
+                <Text style={[styles.aggLabel, body, forgeAgg === agg && styles.aggLabelOn]}>
                   {t(agg === 'sum' ? 'onboarding.aggSum' : 'onboarding.aggLatest')}
                 </Text>
               </Pressable>
             ))}
-            {error != null && <Text style={styles.error}>{error}</Text>}
+            {error != null && <Text style={[styles.error, body]}>{error}</Text>}
             <GrimButton label={t('common.confirm')} onPress={forge}
               disabled={validateOrdealName(forgeName) != null || validateOrdealUnit(forgeUnit) != null} />
             <GrimButton label={t('common.cancel')} variant="ghost" onPress={() => setForgeOpen(false)} />

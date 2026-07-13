@@ -7,9 +7,12 @@ import { GrimInput } from '../../src/components/GrimInput';
 import { loadDraft, saveDraft } from '../../src/onboarding/draft';
 import { validateNemesisName } from '../../src/lib/validation';
 import { colors, semantic, spacing } from '../../src/theme/tokens';
+import { useBrutality } from '../../src/theme/brutality-context';
+import { BrutalText } from '../../src/components/BrutalText';
 
 export default function NameStep() {
   const { t } = useTranslation();
+  const { font } = useBrutality();
   const router = useRouter();
   const [name, setName] = useState('');
   const [touched, setTouched] = useState(false);
@@ -28,7 +31,7 @@ export default function NameStep() {
 
   return (
     <View style={styles.root}>
-      <Text style={styles.title}>{t('onboarding.nameTitle')}</Text>
+      <BrutalText text={t('onboarding.nameTitle')} font={font('display')} style={styles.title} />
       <GrimInput value={name} onChangeText={(v) => { setName(v); setTouched(true); }}
         placeholder={t('onboarding.namePlaceholder')}
         error={nameError ? t(`validation.${nameError}`) : null} />

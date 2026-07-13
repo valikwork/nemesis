@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { ordealLabel, type OrdealRow } from '../onboarding/ordeal-labels';
 import { GrimButton } from './GrimButton';
 import { useBrutality } from '../theme/brutality-context';
+import { BrutalText } from './BrutalText';
 import { GrimInput } from './GrimInput';
 import { colors, radii, spacing } from '../theme/tokens';
 
@@ -40,7 +41,7 @@ export function GloveSheet({ visible, sharedOrdeals, busy, error, onThrow, onClo
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.scrim}>
         <View style={styles.sheet}>
-          <Text style={styles.title}>{t('deck.throwGlove')}</Text>
+          <BrutalText text={t('deck.throwGlove')} font={font('display')} style={styles.title} />
           {sharedOrdeals.map((o) => (
             <Pressable
               key={o.id}
@@ -60,7 +61,7 @@ export function GloveSheet({ visible, sharedOrdeals, busy, error, onThrow, onClo
               trackColor={{ false: colors.venomDim, true: colors.bloodDeep }} thumbColor={colors.bone} />
           </View>
           {showdown && <GrimInput value={goal} onChangeText={setGoal} placeholder="100" keyboardType="numeric" />}
-          {error != null && <Text style={styles.error}>{error}</Text>}
+          {error != null && <Text style={[styles.error, body]}>{error}</Text>}
           <GrimButton
             label={t('summon.create')}
             disabled={busy || ordealId == null || !goalValid}

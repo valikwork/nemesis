@@ -7,12 +7,12 @@ interface Props extends TextInputProps {
 }
 
 export function GrimInput({ error, style, ...rest }: Props) {
-  const { tier } = useBrutality();
+  const { tier, font } = useBrutality();
   return (
     <View style={styles.wrap}>
       <TextInput
         placeholderTextColor={colors.smoke}
-        style={[styles.input, { borderRadius: radii.button * tier.radiiScale }, error != null && styles.inputError, style]}
+        style={[styles.input, { borderRadius: radii.button * tier.radiiScale, fontFamily: font('body') }, error != null && styles.inputError, style]}
         {...rest}
       />
       {error != null && <Text style={styles.error}>{error}</Text>}

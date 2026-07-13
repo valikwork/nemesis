@@ -7,6 +7,8 @@ import { errMessage } from '../lib/err';
 import { GrimButton } from './GrimButton';
 import { GrimInput } from './GrimInput';
 import { colors, radii, spacing } from '../theme/tokens';
+import { useBrutality } from '../theme/brutality-context';
+import { BrutalText } from './BrutalText';
 
 interface Props {
   visible: boolean;
@@ -19,6 +21,8 @@ interface Props {
 
 export function SafetySheet({ visible, targetId, targetName, feudId, onClose, onBlocked }: Props) {
   const { t } = useTranslation();
+  const { font } = useBrutality();
+  const body = { fontFamily: font('body') };
   const [mode, setMode] = useState<'menu' | 'block' | 'report'>('menu');
   const [reason, setReason] = useState('');
   const [sent, setSent] = useState(false);
@@ -72,16 +76,16 @@ export function SafetySheet({ visible, targetId, targetName, feudId, onClose, on
           )}
           {mode === 'block' && (
             <>
-              <Text style={styles.title}>{t('safety.blockConfirmTitle', { name: targetName })}</Text>
-              <Text style={styles.body}>{t('safety.blockConfirmBody')}</Text>
+              <BrutalText text={t('safety.blockConfirmTitle', { name: targetName })} font={font('display')} style={styles.title} />
+              <Text style={[styles.body, body]}>{t('safety.blockConfirmBody')}</Text>
               <GrimButton label={t('settings.block')} onPress={doBlock} disabled={busy} />
             </>
           )}
           {mode === 'report' && (
             <>
-              <Text style={styles.title}>{t('safety.reportTitle')}</Text>
+              <BrutalText text={t('safety.reportTitle')} font={font('display')} style={styles.title} />
               {sent ? (
-                <Text style={styles.body}>{t('safety.reportSent')}</Text>
+                <Text style={[styles.body, body]}>{t('safety.reportSent')}</Text>
               ) : (
                 <>
                   <GrimInput value={reason} onChangeText={setReason} multiline numberOfLines={3}
@@ -92,7 +96,7 @@ export function SafetySheet({ visible, targetId, targetName, feudId, onClose, on
               )}
             </>
           )}
-          {error != null && <Text style={styles.error}>{error}</Text>}
+          {error != null && <Text style={[styles.error, body]}>{error}</Text>}
           <GrimButton label={t('common.cancel')} variant="ghost" onPress={() => { reset(); onClose(); }} />
         </View>
       </View>
