@@ -16,7 +16,9 @@ import Home from '../index';
 describe('Home', () => {
   it('renders logo and empty state', async () => {
     const { getByText } = await render(<Home />);
-    getByText('NEMESIS');
+    // logo is Maskdown at tier 1 → metal-mirror layout splits it into halves
+    getByText('Neme');
+    getByText('siS');
     getByText('No feuds yet. Summon a friend and begin.');
   });
 });

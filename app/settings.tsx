@@ -11,6 +11,7 @@ import { validateCatchphrase, validateBio } from '../src/lib/validation';
 import { errMessage } from '../src/lib/err';
 import { useBrutality } from '../src/theme/brutality-context';
 import { GrimButton } from '../src/components/GrimButton';
+import { BrutalText } from '../src/components/BrutalText';
 import { GrimInput } from '../src/components/GrimInput';
 import { colors, radii, semantic, spacing } from '../src/theme/tokens';
 
@@ -143,7 +144,7 @@ export default function Settings() {
         <Text style={styles.backArrowText}>←</Text>
       </Pressable>
       <ScrollView style={styles.scroll} contentContainerStyle={styles.root}>
-        <Text style={[styles.title, { fontFamily: font('display') }]}>{t('settings.title')}</Text>
+        <BrutalText text={t('settings.title')} font={font('display')} style={styles.title} />
 
         <Text style={styles.section}>{t('settings.persona')}</Text>
         <Text style={styles.fieldLabel}>{t('onboarding.catchphraseTitle')}</Text>
@@ -205,7 +206,7 @@ export default function Settings() {
                 onPress={() => { setTier(bt.level); setTierOpen(false); }}
                 style={[styles.tierRow, tier === bt.level && styles.tierRowOn]}>
                 {/* self-demonstrating: each row wears its own tier's display font */}
-                <Text style={[styles.tierName, { fontFamily: bt.fonts.display }, tier === bt.level && styles.tierNameOn]}>{t(bt.nameKey)}</Text>
+                <BrutalText text={t(bt.nameKey)} font={bt.fonts.display} style={[styles.tierName, tier === bt.level && styles.tierNameOn]} />
                 <Text style={styles.tierDesc}>{t(bt.descKey)}</Text>
               </Pressable>
             ))}

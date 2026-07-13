@@ -18,6 +18,7 @@ import { GrimButton } from '../../src/components/GrimButton';
 import { GrimInput } from '../../src/components/GrimInput';
 import { TauntForgeSheet } from '../../src/components/TauntForgeSheet';
 import { SafetySheet } from '../../src/components/SafetySheet';
+import { BrutalText } from '../../src/components/BrutalText';
 import { colors, radii, semantic, spacing } from '../../src/theme/tokens';
 import { useBrutality } from '../../src/theme/brutality-context';
 import { errMessage } from '../../src/lib/err';
@@ -146,7 +147,7 @@ export default function FeudScreen() {
       <Pressable style={styles.safetyMenu} onPress={() => setSafetyOpen(true)}>
         <Text style={styles.safetyMenuText}>{t('safety.menu')}</Text>
       </Pressable>
-      <Text style={[styles.header, { fontFamily: font('display') }]}>{opponentName}</Text>
+      <BrutalText text={opponentName} font={font('display')} style={styles.header} />
       {feud.is_arch && (
         <Text style={styles.archBadge}>
           ⚜ {t('arch.title')}{realName != null ? ` · ${realName}` : ''}

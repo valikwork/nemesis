@@ -12,6 +12,7 @@ import { SIGILS } from '../src/onboarding/sigils';
 import { MatchMoment } from '../src/components/MatchMoment';
 import { GloveSheet } from '../src/components/GloveSheet';
 import { GrimButton } from '../src/components/GrimButton';
+import { BrutalText } from '../src/components/BrutalText';
 import { colors, radii, semantic, spacing } from '../src/theme/tokens';
 import { errMessage } from '../src/lib/err';
 import { useBrutality } from '../src/theme/brutality-context';
@@ -131,7 +132,7 @@ export default function Deck() {
 
   return (
     <View style={styles.root}>
-      <Text style={[styles.title, { fontFamily: font('display') }]}>{t('deck.tab')}</Text>
+      <BrutalText text={t('deck.tab')} font={font('display')} style={styles.title} />
 
       {gate === 'ask' && (
         <View style={styles.gate}>
@@ -152,7 +153,7 @@ export default function Deck() {
         <>
           <View style={styles.card}>
             <Text style={styles.cardSigil}>{glyph(card.mask_avatar_id)}</Text>
-            <Text style={[styles.cardName, { fontFamily: font('display') }]}>{card.nemesis_name}</Text>
+            <BrutalText text={card.nemesis_name} font={font('display')} style={styles.cardName} />
             {card.catchphrase != null && <Text style={styles.cardPhrase}>“{card.catchphrase}”</Text>}
             <Text style={styles.cardDistance}>{t('deck.distanceAway', { km: card.distance_km })}</Text>
             <ScrollView style={styles.ordealScroll} contentContainerStyle={styles.ordealList}>

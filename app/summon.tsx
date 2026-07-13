@@ -7,6 +7,7 @@ import { useSession } from '../src/auth/session';
 import { createInvite, pendingInvites, revokeInvite, myOrdeals, type PendingInvite } from '../src/lib/feuds';
 import { ordealLabel, type OrdealRow } from '../src/onboarding/ordeal-labels';
 import { GrimButton } from '../src/components/GrimButton';
+import { BrutalText } from '../src/components/BrutalText';
 import { GrimInput } from '../src/components/GrimInput';
 import { colors, radii, semantic, spacing } from '../src/theme/tokens';
 import { errMessage } from '../src/lib/err';
@@ -57,7 +58,7 @@ export default function Summon() {
 
   return (
     <View style={styles.root}>
-      <Text style={[styles.title, { fontFamily: font('display') }]}>{t('summon.sheetTitle')}</Text>
+      <BrutalText text={t('summon.sheetTitle')} font={font('display')} style={styles.title} />
       <FlatList
         data={ordeals}
         keyExtractor={(o) => o.id}

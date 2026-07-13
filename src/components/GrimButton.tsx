@@ -1,6 +1,7 @@
-import { Pressable, Text, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 import { colors, radii, spacing } from '../theme/tokens';
 import { useBrutality } from '../theme/brutality-context';
+import { BrutalText } from './BrutalText';
 
 interface Props {
   label: string;
@@ -23,7 +24,8 @@ export function GrimButton({ label, onPress, disabled, variant = 'primary' }: Pr
         disabled && styles.disabled,
       ]}
     >
-      <Text style={[styles.label, { fontFamily: font('label') }, variant === 'ghost' && styles.ghostLabel]}>{label}</Text>
+      <BrutalText text={label} font={font('label')}
+        style={[styles.label, variant === 'ghost' && styles.ghostLabel]} />
     </Pressable>
   );
 }

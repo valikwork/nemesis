@@ -11,6 +11,7 @@ import { SIGILS } from '../src/onboarding/sigils';
 import { FeudRowCard } from '../src/components/FeudRowCard';
 import { GloveSheet } from '../src/components/GloveSheet';
 import { GrimButton } from '../src/components/GrimButton';
+import { BrutalText } from '../src/components/BrutalText';
 import { colors, radii, semantic, spacing } from '../src/theme/tokens';
 import { useBrutality } from '../src/theme/brutality-context';
 import { errMessage } from '../src/lib/err';
@@ -108,8 +109,8 @@ export default function Home() {
       <Pressable style={styles.gear} onPress={() => router.push('/settings')}>
         <Text style={styles.gearText}>⚙︎</Text>
       </Pressable>
-      <Text style={[styles.logo, { fontFamily: font('logo') }]}>NEMESIS</Text>
-      <Text style={[styles.title, { fontFamily: font('display') }]}>{t('home.title')}</Text>
+      <BrutalText text="NEMESIS" font={font('logo')} style={styles.logo} />
+      <BrutalText text={t('home.title')} font={font('display')} style={styles.title} />
       {error != null && <Text style={styles.error}>{error}</Text>}
       <FlatList
         data={active}
