@@ -139,6 +139,7 @@ export default function FeudScreen() {
   const unit = feud.mode === 'showdown' ? ordealUnit(ordeal, i18n.language) : '';
   const opponentId = feud.profile_a === myId ? feud.profile_b : feud.profile_a;
   const ended = feud.status === 'ended';
+  const live = feud.status === 'active'; // dissolved feuds are read-only too
   const iWon = ended && feud.winner === myId;
   const theirLastEntry = [...entries].reverse().find((e) => e.author === opponentId);
   const goneSoft = opponentGoneSoft(feud, theirLastEntry?.created_at);
@@ -202,9 +203,9 @@ export default function FeudScreen() {
         theirName={opponentName}
         unit={unit}
       />
-      {!ended && <GrimButton label={t('feud.logDeed')} onPress={() => setLogOpen(true)} />}
-      {!ended && <GrimButton label={t('forge.cta')} variant="ghost" onPress={() => setForgeOpen(true)} />}
-      {!ended && !feud.is_arch && feud.status === 'active' && (
+      {live && <GrimButton label={t('feud.logDeed')} onPress={() => setLogOpen(true)} />}
+      {live && <GrimButton label={t('forge.cta')} variant="ghost" onPress={() => setForgeOpen(true)} />}
+      {live && !feud.is_arch && (
         <GrimButton label={t('arch.declareCta')} variant="ghost" onPress={() => setArchConfirm('declare')} />
       )}
       {feud.is_arch && feud.status === 'active' && (
@@ -256,17 +257,17 @@ export default function FeudScreen() {
       <Modal visible={logOpen} transparent animationType="fade" onRequestClose={() => setLogOpen(false)}>
         <View style={styles.modalScrim}>
           <View style={styles.modal}>
-            <Text style={styles.header}>{t('feud.logTitle')}</Text>
-            <Text style={styles.fieldLabel}>{t('feud.valueLabel')}{unit !== '' ? ` (${unit})` : ''}</Text>
+            <BrutalText text={t('feud.logTitle')} font={font('display')} style={styles.header} />
+            <Text style={[styles.fieldLabel, body]}>{t('feud.valueLabel')}{unit !== '' ? ` (${unit})` : ''}</Text>
             <GrimInput value={value} onChangeText={setValue} placeholder="5" keyboardType="numeric" />
-            <Text style={styles.fieldLabel}>{t('feud.noteLabel')}</Text>
+            <Text style={[styles.fieldLabel, body]}>{t('feud.noteLabel')}</Text>
             <GrimInput value={note} onChangeText={setNote} placeholder="…" />
             <Pressable onPress={pickProof}>
-              <Text style={styles.proofCta}>
+              <Text style={[styles.proofCta, body]}>
                 {proofUri != null ? t('feud.proofAttached') : t('feud.attachProof')}
               </Text>
             </Pressable>
-            <Text style={styles.proofHint}>{t('feud.proofHint')}</Text>
+            <Text style={[styles.proofHint, body]}>{t('feud.proofHint')}</Text>
             {error != null && <Text style={styles.error}>{error}</Text>}
             <GrimButton label={t('common.confirm')} onPress={submit} disabled={busy} />
             <GrimButton label={t('common.cancel')} variant="ghost" onPress={() => setLogOpen(false)} />
