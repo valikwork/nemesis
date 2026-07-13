@@ -67,11 +67,6 @@ export default function Settings() {
     setBusy(true);
     setError(null);
     try {
-      const { error: e } = await supabase.from('profiles').update({
-        brutality_tier: tier,
-      }).eq('id', uid);
-      if (e) throw e;
-      setLevel(tier); // theme flips live
       const { error: ie } = await supabase.from('unmasked_identities')
         .upsert({ profile_id: uid, real_name: realName.trim() || null });
       if (ie) throw ie;
@@ -201,7 +196,12 @@ export default function Settings() {
             <Text style={styles.title}>{t('brutality.title')}</Text>
             {brutalityTiers.map((bt) => (
               <Pressable key={bt.level}
-                onPress={() => { setTier(bt.level); setTierOpen(false); }}
+                onPress={async () => {
+                  setTier(bt.level);
+                  setTierOpen(false);
+                  setLevel(bt.level); // theme flips instantly, no Save needed
+                  if (uid != null) await supabase.from('profiles').update({ brutality_tier: bt.level }).eq('id', uid);
+                }}
                 style={[styles.tierRow, tier === bt.level && styles.tierRowOn]}>
                 {/* self-demonstrating: each row wears its own tier's display font */}
                 <BrutalText text={t(bt.nameKey)} font={bt.fonts.display} align="left" style={[styles.tierName, tier === bt.level && styles.tierNameOn]} />
