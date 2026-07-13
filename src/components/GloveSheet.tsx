@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Modal, Pressable, Switch } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { ordealLabel, type OrdealRow } from '../onboarding/ordeal-labels';
 import { GrimButton } from './GrimButton';
+import { useBrutality } from '../theme/brutality-context';
 import { GrimInput } from './GrimInput';
 import { colors, radii, spacing } from '../theme/tokens';
 
@@ -18,6 +19,8 @@ interface Props {
 /** Post-match terms sheet: pick a shared ordeal, endless or showdown-to-goal. */
 export function GloveSheet({ visible, sharedOrdeals, busy, error, onThrow, onClose }: Props) {
   const { t, i18n } = useTranslation();
+  const { font } = useBrutality();
+  const body = { fontFamily: font('body') };
   const [ordealId, setOrdealId] = useState<string | null>(null);
   const [showdown, setShowdown] = useState(true); // showdown is the default mode (owner, 5b walk)
   const [goal, setGoal] = useState('');
@@ -44,13 +47,13 @@ export function GloveSheet({ visible, sharedOrdeals, busy, error, onThrow, onClo
               onPress={() => setOrdealId(o.id)}
               style={[styles.pickRow, ordealId === o.id && styles.pickRowOn]}
             >
-              <Text style={[styles.pickLabel, ordealId === o.id && styles.pickLabelOn]}>
+              <Text style={[styles.pickLabel, body, ordealId === o.id && styles.pickLabelOn]}>
                 {ordealLabel(o, i18n.language)}
               </Text>
             </Pressable>
           ))}
           <View style={styles.modeRow}>
-            <Text style={styles.modeLabel}>
+            <Text style={[styles.modeLabel, body]}>
               {showdown ? t('feud.modeShowdown', { goal: goal || '…' }) : t('feud.modeEndless')}
             </Text>
             <Switch value={showdown} onValueChange={setShowdown}

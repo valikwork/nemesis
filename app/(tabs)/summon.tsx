@@ -15,6 +15,7 @@ import { useBrutality } from '../../src/theme/brutality-context';
 export default function Summon() {
   const { t, i18n } = useTranslation();
   const { font } = useBrutality();
+  const body = { fontFamily: font('body') };
   const { session } = useSession();
   const [ordeals, setOrdeals] = useState<OrdealRow[]>([]);
   const [ordealId, setOrdealId] = useState<string | null>(null);
@@ -67,14 +68,14 @@ export default function Summon() {
             onPress={() => setOrdealId(item.id)}
             style={[styles.row, ordealId === item.id && styles.rowOn]}
           >
-            <Text style={[styles.rowLabel, ordealId === item.id && styles.rowLabelOn]}>
+            <Text style={[styles.rowLabel, body, ordealId === item.id && styles.rowLabelOn]}>
               {ordealLabel(item, i18n.language)}
             </Text>
           </Pressable>
         )}
       />
       <View style={styles.modeRow}>
-        <Text style={styles.modeLabel}>
+        <Text style={[styles.modeLabel, body]}>
           {showdown ? t('feud.modeShowdown', { goal: goal || '…' }) : t('feud.modeEndless')}
         </Text>
         <Switch value={showdown} onValueChange={setShowdown}
@@ -91,7 +92,7 @@ export default function Summon() {
           <Text style={styles.pendingTitle}>{t('home.pendingTitle')}</Text>
           {pending.map((inv) => (
             <View key={inv.id} style={styles.pendingCard}>
-              <Text style={styles.pendingText}>
+              <Text style={[styles.pendingText, body]}>
                 {ordealLabel(inv.ordeal, i18n.language)}
                 {inv.mode === 'showdown' ? ` · ${t('feud.modeShowdown', { goal: inv.goal_value })}` : ''}
               </Text>
