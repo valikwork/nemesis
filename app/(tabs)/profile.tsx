@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Pressable, Modal, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Modal, ScrollView } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../../src/lib/supabase';
@@ -116,7 +116,7 @@ export default function Profile() {
   const available = catalog.filter((o) => !mine.some((m) => m.id === o.id));
 
   return (
-    <View style={styles.root}>
+    <ScrollView style={styles.screen} contentContainerStyle={styles.root}>
       <Text style={styles.sigil}>{glyph}</Text>
       {persona != null && <BrutalText text={persona.nemesis_name} font={font('display')} style={styles.name} />}
 
@@ -137,20 +137,17 @@ export default function Profile() {
       <Text style={styles.section}>{t('profile.ordealsTitle')}</Text>
       <Text style={[styles.hint, body]}>{t('profile.ordealsHint')}</Text>
       {error != null && <Text style={styles.error}>{error}</Text>}
-      <FlatList
-        data={mine}
-        keyExtractor={(o) => o.id}
-        contentContainerStyle={styles.list}
-        renderItem={({ item }) => (
-          <View style={styles.row}>
+      <View style={styles.list}>
+        {mine.map((item) => (
+          <View key={item.id} style={styles.row}>
             <Text style={[styles.rowLabel, body]}>{ordealLabel(item, lang)}</Text>
             <Pressable onPress={() => remove(item.id)} hitSlop={8}>
               <Text style={styles.removeX}>✕</Text>
             </Pressable>
           </View>
-        )}
-        ListEmptyComponent={<Text style={styles.hint}>{t('profile.ordealsEmpty')}</Text>}
-      />
+        ))}
+        {mine.length === 0 && <Text style={styles.hint}>{t('profile.ordealsEmpty')}</Text>}
+      </View>
       {mine.length >= 5 && <Text style={styles.hint}>{t('onboarding.ordealsLimit')}</Text>}
       <GrimButton label={t('profile.addOrdeal')} onPress={() => setPickOpen(true)} disabled={mine.length >= 5} />
       <GrimButton label={t('onboarding.forgeCta')} variant="ghost" onPress={() => setForgeOpen(true)} disabled={mine.length >= 5} />
@@ -198,12 +195,13 @@ export default function Profile() {
           </View>
         </View>
       </Modal>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: semantic.bg, padding: spacing[4], paddingTop: spacing[5] * 2, gap: spacing[2] },
+  screen: { flex: 1, backgroundColor: semantic.bg },
+  root: { padding: spacing[4], paddingTop: spacing[5] * 2, paddingBottom: spacing[5], gap: spacing[2] },
   sigil: { fontSize: 56, color: colors.venom, textAlign: 'center' },
   name: { color: colors.bone, fontSize: 24, textAlign: 'center', letterSpacing: 1 },
   phrase: { color: colors.ash, fontSize: 13, fontStyle: 'italic', textAlign: 'center' },
