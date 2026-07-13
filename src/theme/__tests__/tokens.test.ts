@@ -77,7 +77,6 @@ describe('brutality', () => {
       },
       dividers: 'jagged-doubled',
       radiiScale: 0,
-      buttonTiltDeg: 3,
       numerals: 'roman',
       accent: 'blood',
     });

@@ -11,6 +11,7 @@ import { GrimButton } from '../../src/components/GrimButton';
 import { GrimInput } from '../../src/components/GrimInput';
 import { BrutalText } from '../../src/components/BrutalText';
 import { useBrutality } from '../../src/theme/brutality-context';
+import { SigilDivider } from '../../src/components/SigilDivider';
 import { errMessage } from '../../src/lib/err';
 import { colors, radii, semantic, spacing } from '../../src/theme/tokens';
 
@@ -20,6 +21,7 @@ export default function Profile() {
   const { t, i18n } = useTranslation();
   const { session } = useSession();
   const { font } = useBrutality();
+  const body = { fontFamily: font('body') };
   const uid = session?.user.id;
   const lang = i18n.language;
 
@@ -131,8 +133,9 @@ export default function Profile() {
       <GrimButton label={t('settings.save')} onPress={savePersona}
         disabled={validateCatchphrase(catchphrase) != null || validateBio(bio) != null} />
 
+      <SigilDivider />
       <Text style={styles.section}>{t('profile.ordealsTitle')}</Text>
-      <Text style={styles.hint}>{t('profile.ordealsHint')}</Text>
+      <Text style={[styles.hint, body]}>{t('profile.ordealsHint')}</Text>
       {error != null && <Text style={styles.error}>{error}</Text>}
       <FlatList
         data={mine}
@@ -140,7 +143,7 @@ export default function Profile() {
         contentContainerStyle={styles.list}
         renderItem={({ item }) => (
           <View style={styles.row}>
-            <Text style={styles.rowLabel}>{ordealLabel(item, lang)}</Text>
+            <Text style={[styles.rowLabel, body]}>{ordealLabel(item, lang)}</Text>
             <Pressable onPress={() => remove(item.id)} hitSlop={8}>
               <Text style={styles.removeX}>✕</Text>
             </Pressable>

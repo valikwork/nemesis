@@ -21,6 +21,8 @@ import { SafetySheet } from '../../src/components/SafetySheet';
 import { BrutalText } from '../../src/components/BrutalText';
 import { colors, radii, semantic, spacing } from '../../src/theme/tokens';
 import { useBrutality } from '../../src/theme/brutality-context';
+import { formatNumeral } from '../../src/theme/numerals';
+import { SigilDivider } from '../../src/components/SigilDivider';
 import { errMessage } from '../../src/lib/err';
 
 export default function FeudScreen() {
@@ -28,7 +30,8 @@ export default function FeudScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const { session } = useSession();
-  const { font } = useBrutality();
+  const { font, tier } = useBrutality();
+  const body = { fontFamily: font('body') };
   const myId = session?.user.id ?? '';
 
   const [feud, setFeud] = useState<FeudRow | null>(null);
@@ -154,7 +157,7 @@ export default function FeudScreen() {
           ⚜ {t('arch.title')}{realName != null ? ` · ${realName}` : ''}
         </Text>
       )}
-      <Text style={styles.subheader}>{ordealLabel(ordeal, i18n.language)}</Text>
+      <Text style={[styles.subheader, body]}>{ordealLabel(ordeal, i18n.language)}</Text>
       {archNote != null && <Text style={styles.archNote}>{archNote}</Text>}
       {ended && (
         <View style={styles.verdict}>
@@ -226,6 +229,7 @@ export default function FeudScreen() {
           </View>
         </>
       )}
+      <SigilDivider />
       <Text style={styles.chronicleTitle}>{t('feud.chronicle')}</Text>
       <FlatList
         data={[...entries].reverse()}
@@ -239,10 +243,10 @@ export default function FeudScreen() {
               <Text style={[styles.entryWho, mine ? styles.entryMine : styles.entryTheirs]}>
                 {mine ? t('feud.you') : opponentName}
               </Text>
-              <Text style={styles.entryValue}>
-                +{Number(item.value)}{unit !== '' ? ` ${unit}` : ''}{rumor ? ` · ${t('feud.entryRumor')}` : ''}
+              <Text style={[styles.entryValue, body]}>
+                +{formatNumeral(Number(item.value), tier.numerals)}{unit !== '' ? ` ${unit}` : ''}{rumor ? ` · ${t('feud.entryRumor')}` : ''}
               </Text>
-              {item.note != null && <Text style={styles.entryNote}>{item.note}</Text>}
+              {item.note != null && <Text style={[styles.entryNote, body]}>{item.note}</Text>}
             </View>
           );
         }}

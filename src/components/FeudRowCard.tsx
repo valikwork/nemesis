@@ -4,6 +4,8 @@ import type { FeudWithMeta } from '../lib/feuds';
 import { ordealLabel, ordealUnit } from '../onboarding/ordeal-labels';
 import { SIGILS } from '../onboarding/sigils';
 import { colors, radii, spacing } from '../theme/tokens';
+import { useBrutality } from '../theme/brutality-context';
+import { formatNumeral } from '../theme/numerals';
 
 interface Props {
   item: FeudWithMeta;
@@ -12,25 +14,28 @@ interface Props {
 
 export function FeudRowCard({ item, onPress }: Props) {
   const { t, i18n } = useTranslation();
+  const { tier, font } = useBrutality();
+  const body = { fontFamily: font('body') };
+  const numeral = { fontFamily: font('numeral') };
   const glyph = SIGILS.find((s) => s.id === item.opponent.mask_avatar_id)?.glyph ?? '✠';
   const ended = item.feud.status !== 'active';
   return (
-    <Pressable onPress={onPress} style={[styles.card, ended && styles.ended]}>
+    <Pressable onPress={onPress} style={[styles.card, { borderRadius: radii.card * tier.radiiScale }, ended && styles.ended]}>
       <Text style={styles.sigil}>{glyph}</Text>
       <View style={styles.mid}>
-        <Text style={styles.opponent}>{item.opponent.nemesis_name}</Text>
-        <Text style={styles.ordeal}>
+        <Text style={[styles.opponent, { fontFamily: font('display') }]}>{item.opponent.nemesis_name}</Text>
+        <Text style={[styles.ordeal, body]}>
           {ordealLabel(item.ordeal, i18n.language)}
           {item.feud.mode === 'showdown' && item.feud.goal_value != null
-            ? ` · ${t('feud.modeShowdown', { goal: item.feud.goal_value })}`
+            ? ` · ${t('feud.modeShowdown', { goal: formatNumeral(Number(item.feud.goal_value), tier.numerals) })}`
             : ''}
         </Text>
-        {item.goneSoft && <Text style={styles.goneSoft}>{t('feud.goneSoft')}</Text>}
+        {item.goneSoft && <Text style={[styles.goneSoft, body]}>{t('feud.goneSoft')}</Text>}
       </View>
       <View style={styles.scores}>
-        <Text style={styles.score}>{item.myTotal} : {item.theirTotal}</Text>
+        <Text style={[styles.score, numeral]}>{formatNumeral(item.myTotal, tier.numerals)} : {formatNumeral(item.theirTotal, tier.numerals)}</Text>
         {item.feud.mode === 'showdown' && (
-          <Text style={styles.unit}>{ordealUnit(item.ordeal, i18n.language)}</Text>
+          <Text style={[styles.unit, body]}>{ordealUnit(item.ordeal, i18n.language)}</Text>
         )}
       </View>
     </Pressable>

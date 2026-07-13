@@ -13,6 +13,7 @@ import { GloveSheet } from '../../src/components/GloveSheet';
 import { BrutalText } from '../../src/components/BrutalText';
 import { colors, radii, semantic, spacing } from '../../src/theme/tokens';
 import { useBrutality } from '../../src/theme/brutality-context';
+import { SigilDivider } from '../../src/components/SigilDivider';
 import { errMessage } from '../../src/lib/err';
 
 interface DeclareBanner extends DeclareRow {
@@ -23,6 +24,7 @@ export default function Home() {
   const { t } = useTranslation();
   const { session } = useSession();
   const { font } = useBrutality();
+  const body = { fontFamily: font('body') };
   const router = useRouter();
   const [feuds, setFeuds] = useState<FeudWithMeta[]>([]);
   const [declares, setDeclares] = useState<DeclareBanner[]>([]);
@@ -120,7 +122,7 @@ export default function Home() {
           <>
             {declares.map((d) => (
               <View key={d.id} style={styles.banner}>
-                <Text style={styles.bannerText}>{t('arch.received', { name: d.declarer_name })}</Text>
+                <Text style={[styles.bannerText, body]}>{t('arch.received', { name: d.declarer_name })}</Text>
                 <View style={styles.bannerRow}>
                   <Pressable onPress={() => answerDeclare(d.id, false)}>
                     <Text style={styles.bannerDecline}>{t('landing.decline')}</Text>
@@ -133,7 +135,7 @@ export default function Home() {
             ))}
             {matches.map((m) => (
               <View key={m.id} style={styles.banner}>
-                <Text style={styles.bannerText}>
+                <Text style={[styles.bannerText, body]}>
                   {SIGILS.find((s) => s.id === m.mask_avatar_id)?.glyph ?? '✠'} {m.nemesis_name} · {t('deck.matchTitle')}
                 </Text>
                 <View style={styles.bannerRow}>
@@ -174,12 +176,13 @@ export default function Home() {
         }
         ListEmptyComponent={
           proposed.length === 0 && declares.length === 0 && matches.length === 0
-            ? <Text style={styles.empty}>{t('home.empty')}</Text>
+            ? <Text style={[styles.empty, body]}>{t('home.empty')}</Text>
             : null
         }
         ListFooterComponent={
           buried.length > 0 ? (
             <View style={styles.buriedWrap}>
+              <SigilDivider />
               <Text style={styles.buriedTitle}>{t('home.buried')}</Text>
               {buried.map((item) => (
                 <FeudRowCard key={item.feud.id} item={item} onPress={() => router.push(`/feuds/${item.feud.id}`)} />

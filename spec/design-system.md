@@ -58,7 +58,6 @@ Rules:
 |---|---|---|---|---|---|
 | Dividers | straight | jagged | jagged | jagged, doubled | streamers |
 | Corner radii | full | full | −25% | 0 (spikes) | full + 20% |
-| Button rotation | 0° | 0° | ±1° random | ±3° random | ±5° random |
 | Numerals | arabic | arabic | arabic | roman | arabic |
 | Accent palette | blood/venom | blood/venom | blood/venom | blood only | rainbow party |
 | Distance units | km | km | km | "km hence" | km + balloons icon |

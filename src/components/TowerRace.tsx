@@ -1,5 +1,7 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { towerGeometry, type TowerEntry } from '../feud/tower-math';
+import { useBrutality } from '../theme/brutality-context';
+import { formatNumeral } from '../theme/numerals';
 import { colors, radii, spacing } from '../theme/tokens';
 
 interface Props {
@@ -37,22 +39,25 @@ function Tower({ height, segments, mist }: { height: number; segments: { fractio
 
 export function TowerRace({ mode, goal, myId, them, entries, myName, theirName, unit, aggregation }: Props) {
   const g = towerGeometry({ mode, goal, myId, them, entries, aggregation });
+  const { tier, font } = useBrutality();
+  const numeral = { fontFamily: font('numeral') };
+  const fmt = (n: number) => formatNumeral(n, tier.numerals);
   return (
     <View style={styles.root}>
       {g.goalLine != null && (
         <View style={[styles.goalLine, { bottom: g.goalLine * TOWER_HEIGHT + LABELS_H }]}>
-          <Text style={styles.goalText}>{goal} {unit}</Text>
+          <Text style={[styles.goalText, numeral]}>{goal != null ? fmt(goal) : ''} {unit}</Text>
         </View>
       )}
       <View style={styles.towers}>
         <View style={styles.column}>
           <Tower height={g.myHeight} segments={g.mySegments} />
-          <Text style={styles.total}>{g.myTotal} {unit}</Text>
+          <Text style={[styles.total, numeral]}>{fmt(g.myTotal)} {unit}</Text>
           <Text style={styles.name}>{myName}</Text>
         </View>
         <View style={styles.column}>
           <Tower height={g.theirHeight} segments={g.theirSegments} />
-          <Text style={styles.total}>{g.theirTotal} {unit}</Text>
+          <Text style={[styles.total, numeral]}>{fmt(g.theirTotal)} {unit}</Text>
           <Text style={[styles.name, styles.theirName]}>{theirName}</Text>
         </View>
       </View>

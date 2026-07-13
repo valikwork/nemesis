@@ -1,16 +1,18 @@
 import { View, TextInput, Text, StyleSheet, type TextInputProps } from 'react-native';
 import { colors, radii, spacing } from '../theme/tokens';
+import { useBrutality } from '../theme/brutality-context';
 
 interface Props extends TextInputProps {
   error?: string | null;
 }
 
 export function GrimInput({ error, style, ...rest }: Props) {
+  const { tier } = useBrutality();
   return (
     <View style={styles.wrap}>
       <TextInput
         placeholderTextColor={colors.smoke}
-        style={[styles.input, error != null && styles.inputError, style]}
+        style={[styles.input, { borderRadius: radii.button * tier.radiiScale }, error != null && styles.inputError, style]}
         {...rest}
       />
       {error != null && <Text style={styles.error}>{error}</Text>}

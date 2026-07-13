@@ -22,6 +22,7 @@ type Gate = 'checking' | 'ask' | 'open';
 export default function Deck() {
   const { t, i18n } = useTranslation();
   const { font } = useBrutality();
+  const body = { fontFamily: font('body') };
   const router = useRouter();
   const { session } = useSession();
   const myId = session?.user.id ?? '';
@@ -167,7 +168,7 @@ export default function Deck() {
 
       {gate === 'ask' && (
         <View style={styles.gate}>
-          <Text style={styles.gateText}>{t('deck.locationAsk')}</Text>
+          <Text style={[styles.gateText, body]}>{t('deck.locationAsk')}</Text>
           {error != null && <Text style={styles.error}>{error}</Text>}
           <GrimButton label={t('common.confirm')} onPress={optIn} disabled={busy} />
         </View>
@@ -175,7 +176,7 @@ export default function Deck() {
 
       {gate === 'open' && card == null && (
         <View style={styles.gate}>
-          <Text style={styles.gateText}>{t('deck.empty')}</Text>
+          <Text style={[styles.gateText, body]}>{t('deck.empty')}</Text>
           {error != null && <Text style={styles.error}>{error}</Text>}
         </View>
       )}
@@ -185,20 +186,20 @@ export default function Deck() {
           <View style={styles.card}>
             <Text style={styles.cardSigil}>{glyph(card.mask_avatar_id)}</Text>
             <BrutalText text={card.nemesis_name} font={font('display')} style={styles.cardName} />
-            {card.catchphrase != null && <Text style={styles.cardPhrase}>“{card.catchphrase}”</Text>}
-            <Text style={styles.cardDistance}>{t('deck.distanceAway', { km: card.distance_km })}</Text>
+            {card.catchphrase != null && <Text style={[styles.cardPhrase, body]}>“{card.catchphrase}”</Text>}
+            <Text style={[styles.cardDistance, body]}>{t('deck.distanceAway', { km: card.distance_km })}</Text>
             <ScrollView style={styles.ordealScroll} contentContainerStyle={styles.ordealList}>
               {shared.map((o) => (
                 <View key={o.id} style={[styles.ordealChip, styles.ordealChipShared]}>
-                  <Text style={styles.ordealNameShared}>{ordealLabel(o, i18n.language)}</Text>
+                  <Text style={[styles.ordealNameShared, body]}>{ordealLabel(o, i18n.language)}</Text>
                 </View>
               ))}
               {rest.map((o) => (
                 <View key={o.id} style={styles.ordealChip}>
-                  <Text style={styles.ordealName}>{ordealLabel(o, i18n.language)}</Text>
+                  <Text style={[styles.ordealName, body]}>{ordealLabel(o, i18n.language)}</Text>
                 </View>
               ))}
-              {card.bio != null && <Text style={styles.cardBio}>{card.bio}</Text>}
+              {card.bio != null && <Text style={[styles.cardBio, body]}>{card.bio}</Text>}
             </ScrollView>
           </View>
           {error != null && <Text style={styles.error}>{error}</Text>}

@@ -11,7 +11,8 @@ interface Props {
 }
 
 export function GrimButton({ label, onPress, disabled, variant = 'primary' }: Props) {
-  const { font } = useBrutality();
+  const { font, tier } = useBrutality();
+  const mutation = { borderRadius: radii.button * tier.radiiScale };
   return (
     <Pressable
       accessibilityRole="button"
@@ -19,6 +20,7 @@ export function GrimButton({ label, onPress, disabled, variant = 'primary' }: Pr
       pointerEvents={disabled ? 'none' : undefined}
       style={({ pressed }) => [
         styles.base,
+        mutation,
         variant === 'primary' ? styles.primary : styles.ghost,
         pressed && !disabled && styles.pressed,
         disabled && styles.disabled,
