@@ -9,11 +9,17 @@ export function metalCase(word: string): string {
 }
 
 /** Split a word for the mirror layout: right half is rendered flipped
- * (scaleX -1) so its letters "look left" — proper metal band symmetry. */
+ * (scaleX -1) so its letters "look left" — proper metal band symmetry.
+ * Casing happens AFTER the split (owner, 2026-07-12): the flip reverses the
+ * right half's visual order, so its FIRST char is the letter the viewer sees
+ * last — that's the one that gets the uppercase. */
 export function metalHalves(word: string): { left: string; right: string } {
-  const cased = metalCase(word);
-  const mid = Math.ceil(cased.length / 2);
-  return { left: cased.slice(0, mid), right: cased.slice(mid) };
+  const mid = Math.ceil(word.length / 2);
+  const rawLeft = word.slice(0, mid);
+  const rawRight = word.slice(mid);
+  const left = rawLeft[0].toUpperCase() + rawLeft.slice(1).toLowerCase();
+  const right = rawRight === '' ? '' : rawRight[0].toUpperCase() + rawRight.slice(1).toLowerCase();
+  return { left, right };
 }
 
 export const PARTY_PALETTE = [

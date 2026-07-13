@@ -12,9 +12,9 @@ describe('metalCase', () => {
 });
 
 describe('metalHalves', () => {
-  it('splits the cased word in the middle, left gets the odd extra', () => {
-    expect(metalHalves('NEMESIS')).toEqual({ left: 'Neme', right: 'siS' });
-    expect(metalHalves('GROUNDS')).toEqual({ left: 'Grou', right: 'ndS' });
+  it('cases after the split: right half leads with the uppercase (it renders visually last)', () => {
+    expect(metalHalves('NEMESIS')).toEqual({ left: 'Neme', right: 'Sis' });
+    expect(metalHalves('GROUNDS')).toEqual({ left: 'Grou', right: 'Nds' });
     expect(metalHalves('ab')).toEqual({ left: 'A', right: 'B' });
   });
 });
