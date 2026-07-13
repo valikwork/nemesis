@@ -39,8 +39,8 @@ Font slots: `logo`, `display` (screen titles, rival names), `label` (section hea
 | Tier | Name | logo | display | label | body | numeral |
 |---|---|---|---|---|---|---|
 | 1 | Soft | Pickyside | Pickyside | Pickyside | Pickyside | body font, arabic digits |
-| 2 | Hard | Soulside Betrayed | Soulside Betrayed | Soulside Betrayed | Pickyside | arabic digits |
-| 3 | Hardcore | Maskdown | Groovy Tribal | Groovy Tribal | Pickyside | arabic digits |
+| 2 | Hard | Maskdown | Groovy Tribal | Groovy Tribal | Pickyside | arabic digits |
+| 3 | Hardcore | Soulside Betrayed | Soulside Betrayed | Soulside Betrayed | Pickyside | arabic digits |
 | 4 | "I don't care" | Maskdown | Maskdown | Maskdown | Soulside Betrayed | roman numerals |
 | 5 | "I REALLY don't care" | Bagel Fat One | Bagel Fat One | Bagel Fat One | Bagel Fat One | arabic digits, Bagel Fat One |
 
